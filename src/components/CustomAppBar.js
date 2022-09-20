@@ -6,10 +6,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 
 import { Button, IconButton, Typography, useTheme } from "@mui/material";
 
-const adaptAddress = (address) => {
-  return `${address.substring(0, 5)}…${address.substring(address.length - 4)}`;
-};
-
 const CustomAppBar = ({ title, setIsOpened }) => {
   const theme = useTheme();
   const { connectWallet, disconnectWallet, userAddress } = {
@@ -21,7 +17,7 @@ const CustomAppBar = ({ title, setIsOpened }) => {
   return (
     <AppBar
       style={{ background: theme.palette.secondary }}
-      position="absolute"
+      position="sticky"
       open={true}
     >
       <Toolbar
