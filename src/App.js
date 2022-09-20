@@ -10,8 +10,14 @@ import Router from "./routes";
 
 const themeLight = createTheme({
   palette: {
+    primary: {
+      main: "#128C7E",
+    },
+    secondary: {
+      main: "#075E54",
+    },
     background: {
-      default: "rgb(18 140 126)",
+      default: "white",
     },
   },
 });
