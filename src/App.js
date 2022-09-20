@@ -7,6 +7,9 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import "./App.css";
 import Router from "./routes";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+import Authentication from "./providers/Authentication";
 
 const themeLight = createTheme({
   palette: {
@@ -17,18 +20,22 @@ const themeLight = createTheme({
       main: "#075E54",
     },
     background: {
-      default: "white",
+      default: "#FFFFFF",
     },
   },
 });
 
-function App() {
+function App({ auth }) {
   return (
     <HelmetProvider>
       <BrowserRouter>
         <ThemeProvider theme={themeLight}>
-          <CssBaseline />
-          <Router />
+          <Provider store={store}>
+            <Authentication>
+              <CssBaseline />
+              <Router />
+            </Authentication>
+          </Provider>
         </ThemeProvider>
       </BrowserRouter>
     </HelmetProvider>

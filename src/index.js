@@ -20,12 +20,12 @@ const firebaseConfig = {
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
+export const auth = getAuth(firebaseApp);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <React.StrictMode>
-    <App />
+    <App auth={auth} />
   </React.StrictMode>
 );

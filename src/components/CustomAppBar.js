@@ -3,13 +3,14 @@ import React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import MenuIcon from "@mui/icons-material/Menu";
+import { getAuth, signOut } from "firebase/auth";
 
 import { Button, IconButton, Typography, useTheme } from "@mui/material";
 
-const CustomAppBar = ({ title, setIsOpened }) => {
+const CustomAppBar = ({ title, setIsOpened, isLoggedIn = false }) => {
+  const auth = getAuth();
   const theme = useTheme();
-  const { connectWallet, disconnectWallet, userAddress } = {
-    connectWallet: null,
+  const { disconnectWallet, userAddress } = {
     disconnectWallet: null,
     userAddress: null,
   };
@@ -45,11 +46,19 @@ const CustomAppBar = ({ title, setIsOpened }) => {
         >
           {title}
         </Typography>
-        {userAddress && (
+        {isLoggedIn && (
           <Button
-            style={{ backgroundColor: theme.palette.background }}
+            style={{ backgroundColor: "white" }}
             disabled={!!userAddress}
-            onClick={connectWallet}
+            onClick={() => {
+              signOut(auth)
+                .then(() => {
+                  console.log("logged out successfully");
+                })
+                .catch((error) => {
+                  console.log("an error happened signing out", { error });
+                });
+            }}
           >
             {"Logout"}
           </Button>
