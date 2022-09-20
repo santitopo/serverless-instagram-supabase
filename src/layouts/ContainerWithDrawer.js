@@ -9,21 +9,20 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import { ListItemIcon } from "@mui/material";
 import ListItemText from "@mui/material/ListItemText";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
 
 const screensList = [
   {
-    name: "NFT Contract",
-    screen: "/nftcontract",
-    Icon: DashboardIcon,
+    name: "Home",
+    screen: "/home",
+    Icon: HomeIcon,
   },
-  {
-    name: "Loan Contract",
-    screen: "/loancontract",
-    Icon: AccountBalanceWalletIcon,
-  },
+  // {
+  //   name: "Loan Contract",
+  //   screen: "/loancontract",
+  //   Icon: AccountBalanceWalletIcon,
+  // },
 ];
 
 const TemporaryDrawer = ({ isOpened, setIsOpened }) => {
@@ -43,7 +42,7 @@ const TemporaryDrawer = ({ isOpened, setIsOpened }) => {
     <Box>
       <Drawer anchor={"left"} open={isOpened} onClose={toggleDrawer(false)}>
         <Box
-          sx={{ width: 250 }}
+          sx={{ width: 400 }}
           role="presentation"
           onClick={toggleDrawer(false)}
           onKeyDown={toggleDrawer(false)}
