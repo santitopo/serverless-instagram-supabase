@@ -1,12 +1,12 @@
-import { Container, Grid, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import * as React from "react";
-import CustomAppBar from "../components/CustomAppBar";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 import "./Home.css";
 import { auth } from "..";
-import { selectIsLoading, selectUser } from "../redux/auth";
+import { selectUser } from "../redux/auth";
 import { useIsLoggedIn } from "../providers/Authentication";
+import { useSelector } from "react-redux";
 
 const provider = new GoogleAuthProvider();
 
@@ -96,26 +96,32 @@ const AuthForms = () => {
 };
 
 const Welcome = () => {
+  const user = useSelector(selectUser);
+
   return (
-    <Typography fontSize={24} style={{ textAlign: "center" }}>
-      {`Welcome ${"Santiago"}! Start chatting now!`}
-    </Typography>
+    <Grid
+      sx={{ paddingX: 50, paddingY: 20 }}
+      style={{ height: "100vh" }}
+      container
+      rowSpacing={3}
+    >
+      <Grid item xs={12}>
+        {" "}
+        <Typography fontSize={24} style={{ textAlign: "center" }}>
+          {`Bienvenido ${user.displayName},`}
+        </Typography>
+        <Typography fontSize={20} style={{ textAlign: "center" }}>
+          {`Abre el menú de la izquierda para comenzar a chatear!`}
+        </Typography>
+      </Grid>
+    </Grid>
   );
 };
 
-export default function Home({ setIsOpened }) {
+export default function Home() {
   const isLoggedIn = useIsLoggedIn();
 
-  return (
-    <>
-      <CustomAppBar
-        setIsOpened={setIsOpened}
-        title={"Serverless Chat"}
-        isLoggedIn={isLoggedIn}
-      />
-      {isLoggedIn ? <Welcome /> : <AuthForms />}
-    </>
-  );
+  return isLoggedIn ? <Welcome /> : <AuthForms />;
 }
 
 const styles = {

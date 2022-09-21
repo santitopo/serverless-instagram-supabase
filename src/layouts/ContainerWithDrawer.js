@@ -10,23 +10,41 @@ import ListItemButton from "@mui/material/ListItemButton";
 import { ListItemIcon } from "@mui/material";
 import ListItemText from "@mui/material/ListItemText";
 import HomeIcon from "@mui/icons-material/Home";
+import GroupIcon from "@mui/icons-material/Group";
+import ChatIcon from "@mui/icons-material/Chat";
 import { useNavigate } from "react-router-dom";
+import { useIsLoggedIn } from "../providers/Authentication";
 
-const screensList = [
+const loggedOutScreensList = [
   {
-    name: "Home",
+    name: "Inicio",
     screen: "/home",
     Icon: HomeIcon,
   },
-  // {
-  //   name: "Loan Contract",
-  //   screen: "/loancontract",
-  //   Icon: AccountBalanceWalletIcon,
-  // },
+];
+
+const loggedInScreensList = [
+  {
+    name: "Inicio",
+    screen: "/home",
+    Icon: HomeIcon,
+  },
+  {
+    name: "Amigos",
+    screen: "/friends",
+    Icon: GroupIcon,
+  },
+  {
+    name: "Conversaciones",
+    screen: "/chats",
+    Icon: ChatIcon,
+  },
 ];
 
 const TemporaryDrawer = ({ isOpened, setIsOpened }) => {
   const navigate = useNavigate();
+  const isLoggedIn = useIsLoggedIn();
+  const screensList = isLoggedIn ? loggedInScreensList : loggedOutScreensList;
 
   const toggleDrawer = (open) => (event) => {
     if (

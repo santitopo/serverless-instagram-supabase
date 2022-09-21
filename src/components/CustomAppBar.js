@@ -6,14 +6,12 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { getAuth, signOut } from "firebase/auth";
 
 import { Button, IconButton, Typography, useTheme } from "@mui/material";
+import { useIsLoggedIn } from "../providers/Authentication";
 
-const CustomAppBar = ({ title, setIsOpened, isLoggedIn = false }) => {
+const CustomAppBar = ({ title, setIsOpened }) => {
   const auth = getAuth();
   const theme = useTheme();
-  const { disconnectWallet, userAddress } = {
-    disconnectWallet: null,
-    userAddress: null,
-  };
+  const isLoggedIn = useIsLoggedIn();
 
   return (
     <AppBar
@@ -49,7 +47,6 @@ const CustomAppBar = ({ title, setIsOpened, isLoggedIn = false }) => {
         {isLoggedIn && (
           <Button
             style={{ backgroundColor: "white" }}
-            disabled={!!userAddress}
             onClick={() => {
               signOut(auth)
                 .then(() => {
@@ -60,19 +57,7 @@ const CustomAppBar = ({ title, setIsOpened, isLoggedIn = false }) => {
                 });
             }}
           >
-            {"Logout"}
-          </Button>
-        )}
-
-        {userAddress && (
-          <Button
-            style={{
-              marginLeft: 10,
-              backgroundColor: theme.palette.background,
-            }}
-            onClick={disconnectWallet}
-          >
-            {"Disconnect"}
+            {"Cerrar Sesión"}
           </Button>
         )}
       </Toolbar>
