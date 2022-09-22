@@ -68,31 +68,83 @@ export const FacebookButton = () => {
   );
 };
 
-const EmailPassword = ({ onClick }) => {
+const EmailPasswordLogin = ({ goToRegistration }) => {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+
+  const submitLoginForm = () => {
+    console.log("logging in with email & pass");
+  };
+
   return (
-    <Typography style={{ textAlign: "center" }}>
-      <Link
-        component="button"
-        variant="body2"
-        onClick={onClick}
-        sx={{ fontSize: 16 }}
-      >
-        {"No tiene cuenta aún? Regístrese!"}
-      </Link>
-    </Typography>
+    <>
+      <div id="text-field-container">
+        <TextField
+          fullWidth
+          id="outlined-basic"
+          label="Nombre Completo"
+          variant="outlined"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+      <div id="text-field-container">
+        <TextField
+          fullWidth
+          id="outlined-basic"
+          label="Correo Electrónico"
+          variant="outlined"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+      <Box sx={{ margin: 3 }} textAlign="center">
+        <Button
+          onClick={submitLoginForm}
+          variant="contained"
+          component="label"
+          className="btn btn-primary"
+          disabled={!name || !email}
+        >
+          Iniciar Sesión
+        </Button>
+      </Box>
+      <Typography style={{ textAlign: "center" }}>
+        <Link
+          component="button"
+          variant="body2"
+          onClick={goToRegistration}
+          sx={{ fontSize: 16 }}
+        >
+          {"No tiene cuenta aún? Regístrese!"}
+        </Link>
+      </Typography>
+    </>
   );
 };
 
 const AuthButtons = ({ goToRegistration }) => {
   return (
-    <div id="auth-button-container">
-      <Typography style={{ textAlign: "center", fontSize: 24 }}>
-        {"Iniciar Sesión:"}
-      </Typography>
-      <GoogleButton />
-      <FacebookButton />
-      <EmailPassword onClick={goToRegistration} />
-    </div>
+    <>
+      <Grid item xs={5}>
+        <div id="auth-button-container">
+          <Typography style={{ textAlign: "center", fontSize: 24 }}>
+            {"Iniciar Sesión:"}
+          </Typography>
+          <EmailPasswordLogin goToRegistration={goToRegistration} />
+        </div>
+      </Grid>
+      <Grid xs={12} item />
+      <Grid item xs={5}>
+        <div id="auth-button-container">
+          <Typography style={{ textAlign: "center", fontSize: 24 }}>
+            {"O continuar con tu cuenta de:"}
+          </Typography>
+          <GoogleButton />
+          <FacebookButton />
+        </div>
+      </Grid>
+    </>
   );
 };
 
@@ -134,7 +186,7 @@ const FileUploader = ({
   );
 };
 
-const RegisterForm = ({ backToLogin }) => {
+const RegistrationForm = ({ backToLogin }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
@@ -206,20 +258,17 @@ const AuthForms = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   return (
     <>
-      <Grid
-        sx={{ paddingX: 10, paddingY: 20 }}
-        style={{ height: "80vh" }}
-        container
-      >
+      <Grid sx={{ paddingY: 20 }} style={{ height: "80vh" }} container>
         <Grid
           alignItems={"center"}
           justifyContent={"center"}
           container
           item
+          spacing={3}
           xs={12}
         >
           {isRegistering ? (
-            <RegisterForm backToLogin={() => setIsRegistering(false)} />
+            <RegistrationForm backToLogin={() => setIsRegistering(false)} />
           ) : (
             <AuthButtons goToRegistration={() => setIsRegistering(true)} />
           )}
