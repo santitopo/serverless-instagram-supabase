@@ -1,5 +1,5 @@
-import { Grid, Typography } from "@mui/material";
-import * as React from "react";
+import { Box, Link, Grid, Typography, TextField, Button } from "@mui/material";
+import React, { useRef, useState } from "react";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 import "./Home.css";
@@ -7,6 +7,8 @@ import { auth } from "..";
 import { selectUser } from "../redux/auth";
 import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Label } from "@mui/icons-material";
 
 const provider = new GoogleAuthProvider();
 
@@ -66,29 +68,161 @@ export const FacebookButton = () => {
   );
 };
 
-const AuthButtons = () => {
+const EmailPassword = ({ onClick }) => {
+  return (
+    <Typography style={{ textAlign: "center" }}>
+      <Link
+        component="button"
+        variant="body2"
+        onClick={onClick}
+        sx={{ fontSize: 16 }}
+      >
+        {"No tiene cuenta aún? Regístrese!"}
+      </Link>
+    </Typography>
+  );
+};
+
+const AuthButtons = ({ goToRegistration }) => {
   return (
     <div id="auth-button-container">
       <Typography style={{ textAlign: "center", fontSize: 24 }}>
-        {"Autenticación:"}
+        {"Iniciar Sesión:"}
       </Typography>
       <GoogleButton />
       <FacebookButton />
+      <EmailPassword onClick={goToRegistration} />
+    </div>
+  );
+};
+
+const FileUploader = ({
+  onFileSelectError,
+  onFileSelectSuccess,
+  selectedFileName,
+}) => {
+  const fileInput = useRef(null);
+
+  const handleFileInput = (e) => {
+    // handle validations
+    console.log("files are", e.target.files);
+    const file = e.target.files[0];
+    if (file.size > 2200000) {
+      onFileSelectError({ error: "File size cannot exceed more than 1MB" });
+    } else onFileSelectSuccess(file);
+  };
+
+  return (
+    <div className="file-uploader">
+      <input
+        accept="image/*"
+        hidden
+        ref={fileInput}
+        type="file"
+        onChange={handleFileInput}
+      />
+      <Button
+        variant="contained"
+        component="label"
+        onClick={(e) => fileInput.current && fileInput.current.click()}
+        className="btn btn-primary"
+      >
+        Select File
+      </Button>
+      <Typography>{selectedFileName}</Typography>
+    </div>
+  );
+};
+
+const RegisterForm = ({ backToLogin }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [selectedFile, setSelectedFile] = useState("");
+
+  const submitForm = () => {
+    console.log("the form data is", name, email, selectedFile);
+  };
+
+  return (
+    <div id="auth-button-container">
+      <Typography style={{ textAlign: "center", fontSize: 24 }}>
+        {"Registrarse:"}
+      </Typography>
+      <div id="text-field-container">
+        <TextField
+          fullWidth
+          id="outlined-basic"
+          label="Nombre Completo"
+          variant="outlined"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+      <div id="text-field-container">
+        <TextField
+          fullWidth
+          id="outlined-basic"
+          label="Correo Electrónico"
+          variant="outlined"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+      <div id="text-field-container">
+        <FileUploader
+          onFileSelectSuccess={(file) => setSelectedFile(file)}
+          onFileSelectError={({ error }) => alert(error)}
+          selectedFileName={selectedFile?.name}
+        />
+      </div>
+
+      <Box sx={{ margin: 3 }} textAlign="center">
+        <Button
+          onClick={submitForm}
+          variant="contained"
+          component="label"
+          className="btn btn-primary"
+          disabled={!name || !email || !selectedFile}
+        >
+          Registrarse
+        </Button>
+      </Box>
+
+      <Typography style={{ textAlign: "center" }}>
+        <Link
+          component="button"
+          variant="body2"
+          onClick={backToLogin}
+          sx={{ fontSize: 16 }}
+        >
+          {"Ya está registrado? Iniciar sesión!"}
+        </Link>
+      </Typography>
     </div>
   );
 };
 
 const AuthForms = () => {
+  const [isRegistering, setIsRegistering] = useState(false);
   return (
     <>
       <Grid
-        sx={{ paddingX: 50, paddingY: 20 }}
-        style={{ height: "100vh" }}
+        sx={{ paddingX: 10, paddingY: 20 }}
+        style={{ height: "80vh" }}
         container
-        rowSpacing={3}
       >
-        <Grid item xs={12}>
-          <AuthButtons />
+        <Grid
+          alignItems={"center"}
+          justifyContent={"center"}
+          container
+          item
+          xs={12}
+        >
+          {isRegistering ? (
+            <RegisterForm backToLogin={() => setIsRegistering(false)} />
+          ) : (
+            <AuthButtons goToRegistration={() => setIsRegistering(true)} />
+          )}
         </Grid>
       </Grid>
     </>
@@ -106,7 +240,6 @@ const Welcome = () => {
       rowSpacing={3}
     >
       <Grid item xs={12}>
-        {" "}
         <Typography fontSize={24} style={{ textAlign: "center" }}>
           {`Bienvenido ${user.displayName},`}
         </Typography>

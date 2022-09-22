@@ -17,8 +17,7 @@ import Typography from "@mui/material/Typography";
 import FolderIcon from "@mui/icons-material/Folder";
 
 import SendIcon from "@mui/icons-material/Send";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Button, ListItemButton, TextField, useTheme } from "@mui/material";
+import { Button, ListItemButton, TextField } from "@mui/material";
 
 const defaultProfile =
   "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
@@ -29,19 +28,6 @@ const fakeFriends = [
   { name: "Gio", profile: defaultProfile, id: 3 },
   { name: "Tommy", profile: defaultProfile, id: 4 },
 ];
-
-const InvitationBar = () => {
-  return (
-    <div id="search-container">
-      <TextField
-        label="Search input"
-        InputProps={{
-          type: "search",
-        }}
-      />
-    </div>
-  );
-};
 
 const AddFriend = () => {
   return (
