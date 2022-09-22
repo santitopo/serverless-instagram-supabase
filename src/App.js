@@ -22,6 +22,9 @@ const themeLight = createTheme({
     background: {
       default: "#FFFFFF",
     },
+    error: {
+      main: "#c0392b",
+    },
   },
 });
 

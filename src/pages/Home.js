@@ -1,6 +1,19 @@
-import { Box, Link, Grid, Typography, TextField, Button } from "@mui/material";
+import {
+  Box,
+  Link,
+  Grid,
+  Typography,
+  TextField,
+  Button,
+  useTheme,
+} from "@mui/material";
 import React, { useRef, useState } from "react";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 import "./Home.css";
 import { auth } from "..";
@@ -12,20 +25,26 @@ import { Label } from "@mui/icons-material";
 
 const provider = new GoogleAuthProvider();
 
-const onGoogleSignIn = () => {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
-      const user = result.user;
-      console.log("user logged in", { user });
+const onGoogleSignIn = async () => {
+  return signInWithPopup(auth, provider);
+};
+
+const onEmailPasswordSignIn = async (email, password) => {
+  console.log("about to login with", email, password);
+  return signInWithEmailAndPassword(auth, email, password);
+};
+
+const onEmailPasswordSignUp = (name, email, password, profilePicture) => {
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Signed in
+      const user = userCredential.user;
+      // ...
     })
     .catch((error) => {
-      console.log("error logging in", { error });
       const errorCode = error.code;
       const errorMessage = error.message;
-      const email = error.customData.email;
-      const credential = GoogleAuthProvider.credentialFromError(error);
+      // ..
     });
 };
 
@@ -47,7 +66,7 @@ const SSOProviderButton = ({ color, icon, text, onPress }) => {
   );
 };
 
-export const GoogleButton = () => {
+const GoogleButton = () => {
   return (
     <SSOProviderButton
       onPress={onGoogleSignIn}
@@ -58,7 +77,7 @@ export const GoogleButton = () => {
   );
 };
 
-export const FacebookButton = () => {
+const FacebookButton = () => {
   return (
     <SSOProviderButton
       color={FACEBOOK_BLUE}
@@ -70,10 +89,17 @@ export const FacebookButton = () => {
 
 const EmailPasswordLogin = ({ goToRegistration }) => {
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [generalError, setGeneralError] = useState(null);
+  const theme = useTheme();
 
-  const submitLoginForm = () => {
-    console.log("logging in with email & pass");
+  const submitLoginForm = async () => {
+    try {
+      await onEmailPasswordSignIn(email, password);
+    } catch (e) {
+      console.log(e);
+      setGeneralError("Error iniciando sesión");
+    }
   };
 
   return (
@@ -81,30 +107,39 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
       <div id="text-field-container">
         <TextField
           fullWidth
-          id="outlined-basic"
-          label="Nombre Completo"
-          variant="outlined"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
-      <div id="text-field-container">
-        <TextField
-          fullWidth
-          id="outlined-basic"
-          label="Correo Electrónico"
+          id="email-login"
+          label="Correo Electronico"
           variant="outlined"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
+      <div id="text-field-container">
+        <TextField
+          fullWidth
+          id="password-login"
+          label="Contraseña"
+          type={"password"}
+          variant="outlined"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+      {generalError && (
+        <Typography
+          color={theme.palette.error.main}
+          style={{ textAlign: "center" }}
+        >
+          {generalError}
+        </Typography>
+      )}
       <Box sx={{ margin: 3 }} textAlign="center">
         <Button
           onClick={submitLoginForm}
           variant="contained"
           component="label"
           className="btn btn-primary"
-          disabled={!name || !email}
+          disabled={!password || !email}
         >
           Iniciar Sesión
         </Button>
@@ -156,8 +191,6 @@ const FileUploader = ({
   const fileInput = useRef(null);
 
   const handleFileInput = (e) => {
-    // handle validations
-    console.log("files are", e.target.files);
     const file = e.target.files[0];
     if (file.size > 2200000) {
       onFileSelectError({ error: "File size cannot exceed more than 1MB" });
@@ -189,10 +222,11 @@ const FileUploader = ({
 const RegistrationForm = ({ backToLogin }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
 
   const submitForm = () => {
-    console.log("the form data is", name, email, selectedFile);
+    onEmailPasswordSignUp(name, email, password, selectedFile);
   };
 
   return (
@@ -203,7 +237,7 @@ const RegistrationForm = ({ backToLogin }) => {
       <div id="text-field-container">
         <TextField
           fullWidth
-          id="outlined-basic"
+          id="name-registration"
           label="Nombre Completo"
           variant="outlined"
           value={name}
@@ -213,11 +247,22 @@ const RegistrationForm = ({ backToLogin }) => {
       <div id="text-field-container">
         <TextField
           fullWidth
-          id="outlined-basic"
+          id="email-registration"
           label="Correo Electrónico"
           variant="outlined"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+      <div id="text-field-container">
+        <TextField
+          fullWidth
+          type={"password"}
+          id="password-registration"
+          label="Contraseña"
+          variant="outlined"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
       </div>
       <div id="text-field-container">
