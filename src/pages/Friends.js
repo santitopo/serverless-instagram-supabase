@@ -43,54 +43,64 @@ const InvitationBar = () => {
   );
 };
 
+const AddFriend = () => {
+  return (
+    <Grid container item xs={12}>
+      <Grid item xs={12}>
+        <Typography sx={{ mt: 4 }} variant="h6" component="div">
+          Agregar Amigo
+        </Typography>
+      </Grid>
+      <Grid alignSelf={"center"} item xs={8}>
+        <TextField
+          fullWidth
+          label="Dirección de Email"
+          InputProps={{
+            type: "search",
+          }}
+        />
+      </Grid>
+      <Grid alignSelf={"center"} item xs={4}>
+        <Button sx={{ ml: 8 }} variant="contained" endIcon={<SendIcon />}>
+          Send
+        </Button>
+      </Grid>
+    </Grid>
+  );
+};
+
 const FriendList = () => {
   return (
+    <Grid item xs={12}>
+      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+        Amigos
+      </Typography>
+      <div id="list-container">
+        <List dense={false}>
+          {fakeFriends.map((friend) => (
+            <ListItemButton key={friend.id}>
+              <ListItemAvatar>
+                <Avatar src={friend.profile}>
+                  <FolderIcon />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText
+                primary={friend.name}
+                secondary={true ? "Secondary text" : null}
+              />
+            </ListItemButton>
+          ))}
+        </List>
+      </div>
+    </Grid>
+  );
+};
+
+const LeftContainer = () => {
+  return (
     <Grid container item xs={6}>
-      <Grid container item xs={12}>
-        <Grid item xs={8}>
-          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            Agregar Amigo
-          </Typography>
-          <TextField
-            fullWidth
-            label="Dirección de Email"
-            InputProps={{
-              type: "search",
-            }}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <Button
-            sx={{ mt: 8, ml: 8 }}
-            variant="contained"
-            endIcon={<SendIcon />}
-          >
-            Send
-          </Button>
-        </Grid>
-      </Grid>
-      <Grid item xs={12}>
-        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-          Amigos
-        </Typography>
-        <div id="list-container">
-          <List dense={false}>
-            {fakeFriends.map((friend) => (
-              <ListItemButton key={friend.id}>
-                <ListItemAvatar>
-                  <Avatar src={friend.profile}>
-                    <FolderIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={friend.name}
-                  secondary={true ? "Secondary text" : null}
-                />
-              </ListItemButton>
-            ))}
-          </List>
-        </div>
-      </Grid>
+      <AddFriend />
+      <FriendList />
     </Grid>
   );
 };
@@ -112,7 +122,7 @@ const Conversation = () => {
 export default function FriendsSearch() {
   return (
     <Grid sx={{ paddingX: 5 }} style={{ height: "80vh" }} container spacing={2}>
-      <FriendList />
+      <LeftContainer />
       <Conversation />
     </Grid>
   );
