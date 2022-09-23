@@ -22,10 +22,13 @@ const themeLight = createTheme({
     background: {
       default: "#FFFFFF",
     },
+    error: {
+      main: "#c0392b",
+    },
   },
 });
 
-function App({ auth }) {
+function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>

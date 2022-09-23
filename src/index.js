@@ -9,6 +9,8 @@ import App from "./App";
 
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAEQRNTnPfAkvFxCEXW0KteKbU3Feb4OvY",
@@ -19,13 +21,15 @@ const firebaseConfig = {
   appId: "1:329953320793:web:3eb49259572a636fd5b648",
 };
 
-export const firebaseApp = initializeApp(firebaseConfig);
-export const auth = getAuth(firebaseApp);
+const firebaseApp = initializeApp(firebaseConfig);
+getAuth(firebaseApp);
+getFirestore(firebaseApp);
+getStorage(firebaseApp);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <React.StrictMode>
-    <App auth={auth} />
+    <App />
   </React.StrictMode>
 );
