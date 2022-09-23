@@ -33,8 +33,6 @@ const onEmailPasswordSignIn = async (auth, email, password) => {
   return signInWithEmailAndPassword(auth, email, password);
 };
 
-const storage = getStorage();
-
 const onEmailPasswordSignUp = async (
   auth,
   name,
@@ -42,6 +40,7 @@ const onEmailPasswordSignUp = async (
   password,
   profilePicture
 ) => {
+  const storage = getStorage();
   return createUserWithEmailAndPassword(auth, email, password).then(
     async (userCredential) => {
       // Signed in
