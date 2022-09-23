@@ -13,39 +13,53 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  getAuth,
 } from "firebase/auth";
 
+import UserController from "../firebase/controllers/users";
 import "./Home.css";
-import { auth } from "..";
 import { selectUser } from "../redux/auth";
 import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { Label } from "@mui/icons-material";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const provider = new GoogleAuthProvider();
 
-const onGoogleSignIn = async () => {
+const onGoogleSignIn = async (auth) => {
   return signInWithPopup(auth, provider);
 };
 
-const onEmailPasswordSignIn = async (email, password) => {
-  console.log("about to login with", email, password);
+const onEmailPasswordSignIn = async (auth, email, password) => {
   return signInWithEmailAndPassword(auth, email, password);
 };
 
-const onEmailPasswordSignUp = (name, email, password, profilePicture) => {
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
+const storage = getStorage();
+
+const onEmailPasswordSignUp = async (
+  auth,
+  name,
+  email,
+  password,
+  profilePicture
+) => {
+  return createUserWithEmailAndPassword(auth, email, password).then(
+    async (userCredential) => {
       // Signed in
-      const user = userCredential.user;
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // ..
-    });
+      const fbUser = userCredential.user;
+      // Registered properly
+      // Upload picture
+      const imageRef = ref(storage, `profilePictures/${fbUser.uid}.jpg`);
+      await uploadBytes(imageRef, profilePicture);
+      const url = await getDownloadURL(imageRef);
+      // Register user in firestore
+      const user = await UserController.postUser({
+        name,
+        email,
+        profilePicture: url,
+      });
+      console.log("added", user);
+    }
+  );
 };
 
 const GOOGLE_RED = "#F65654";
@@ -67,9 +81,10 @@ const SSOProviderButton = ({ color, icon, text, onPress }) => {
 };
 
 const GoogleButton = () => {
+  const auth = getAuth();
   return (
     <SSOProviderButton
-      onPress={onGoogleSignIn}
+      onPress={() => onGoogleSignIn(auth)}
       color={GOOGLE_RED}
       text={"Continuar con Google"}
       icon={require("../assets/google.png")}
@@ -92,10 +107,11 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
   const [password, setPassword] = useState("");
   const [generalError, setGeneralError] = useState(null);
   const theme = useTheme();
+  const auth = getAuth();
 
   const submitLoginForm = async () => {
     try {
-      await onEmailPasswordSignIn(email, password);
+      await onEmailPasswordSignIn(auth, email, password);
     } catch (e) {
       console.log(e);
       setGeneralError("Error iniciando sesión");
@@ -212,7 +228,7 @@ const FileUploader = ({
         onClick={(e) => fileInput.current && fileInput.current.click()}
         className="btn btn-primary"
       >
-        Select File
+        Seleccionar Foto
       </Button>
       <Typography>{selectedFileName}</Typography>
     </div>
@@ -224,9 +240,16 @@ const RegistrationForm = ({ backToLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
+  const [generalError, setGeneralError] = useState("");
+  const auth = getAuth();
+  const theme = useTheme();
 
-  const submitForm = () => {
-    onEmailPasswordSignUp(name, email, password, selectedFile);
+  const submitForm = async () => {
+    try {
+      await onEmailPasswordSignUp(auth, name, email, password, selectedFile);
+    } catch {
+      setGeneralError("Error registrando usuario");
+    }
   };
 
   return (
@@ -272,6 +295,14 @@ const RegistrationForm = ({ backToLogin }) => {
           selectedFileName={selectedFile?.name}
         />
       </div>
+      {generalError && (
+        <Typography
+          color={theme.palette.error.main}
+          style={{ textAlign: "center" }}
+        >
+          {generalError}
+        </Typography>
+      )}
 
       <Box sx={{ margin: 3 }} textAlign="center">
         <Button

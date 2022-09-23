@@ -28,7 +28,7 @@ const themeLight = createTheme({
   },
 });
 
-function App({ auth }) {
+function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>
