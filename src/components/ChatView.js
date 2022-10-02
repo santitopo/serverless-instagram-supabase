@@ -1,35 +1,8 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
 import React from "react";
 import SendIcon from "@mui/icons-material/Send";
-
-const fakeConversation = [
-  {
-    body: "Mensaje de muestra",
-    sentAt: "2020-02-21 14:40",
-    from: "Santiago Topo",
-    selfMessage: false,
-  },
-  {
-    body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    sentAt: "2020-02-21 14:40",
-    from: "Santiago Topo",
-    selfMessage: true,
-    imageUrl:
-      "https://static.remove.bg/sample-gallery/graphics/bird-thumbnail.jpg",
-  },
-  {
-    body: "Mensaje de muestra",
-    sentAt: "2020-02-21 14:40",
-    from: "Santiago Topo",
-    selfMessage: true,
-  },
-  {
-    body: "Mensaje de muestra",
-    sentAt: "2020-02-21 14:40",
-    from: "Santiago Topo",
-    selfMessage: false,
-  },
-];
+import { useSelector } from "react-redux";
+import { selectUser } from "../redux/auth";
 
 const Message = ({
   selfMessage,
@@ -85,7 +58,8 @@ const Message = ({
   );
 };
 
-const ChatView = () => {
+const ChatView = ({ conversation }) => {
+  const loggedInUser = useSelector(selectUser);
   return (
     <>
       <Grid
@@ -95,7 +69,6 @@ const ChatView = () => {
       >
         <Grid
           style={{
-            //backgroundColor: "red",
             paddingLeft: 10,
             paddingRight: 10,
           }}
@@ -104,9 +77,10 @@ const ChatView = () => {
           container
           xs={12}
         >
-          {fakeConversation.map((message) => (
+          {conversation.map((message) => (
             <Message
               key={`${message.body}-${message.sentAt}-${message.from}`}
+              selfMessage={message.sent_by === loggedInUser.uid}
               {...message}
             />
           ))}

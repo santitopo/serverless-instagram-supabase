@@ -1,8 +1,8 @@
-import addDocToCollection from "../utils/addDocToCollection";
+import setDocInCollection from "../utils/setDocInCollection";
 
 class UserController {
-  postUser(userData) {
-    return addDocToCollection("users", userData);
+  postUser(userData, uid) {
+    return setDocInCollection("users", userData, uid);
   }
 }
 

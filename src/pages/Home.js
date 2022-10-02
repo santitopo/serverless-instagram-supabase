@@ -51,11 +51,14 @@ const onEmailPasswordSignUp = async (
       await uploadBytes(imageRef, profilePicture);
       const url = await getDownloadURL(imageRef);
       // Register user in firestore
-      const user = await UserController.postUser({
-        name,
-        email,
-        profilePicture: url,
-      });
+      const user = await UserController.postUser(
+        {
+          name,
+          email,
+          profilePicture: url,
+        },
+        fbUser.uid
+      );
       console.log("added", user);
     }
   );

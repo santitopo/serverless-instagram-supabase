@@ -21,6 +21,7 @@ const Authentication = ({ children }) => {
             email: fbUser?.email,
             emailVerified: fbUser?.emailVerified,
             photoURL: fbUser?.photoURL,
+            uid: fbUser?.uid,
           })
         );
       } else {
