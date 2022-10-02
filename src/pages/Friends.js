@@ -24,7 +24,7 @@ const fakeFriends = [
 
 const AddFriend = () => {
   return (
-    <Grid container item xs={12}>
+    <Grid container spacing={2} item xs={12}>
       <Grid item xs={12}>
         <Typography sx={{ mt: 4 }} variant="h6" component="div">
           Agregar Amigo
@@ -39,8 +39,8 @@ const AddFriend = () => {
           }}
         />
       </Grid>
-      <Grid alignSelf={"center"} item xs={4}>
-        <Button sx={{ ml: 8 }} variant="contained" endIcon={<SendIcon />}>
+      <Grid alignSelf={"center"} item xs={2}>
+        <Button variant="contained" endIcon={<SendIcon />}>
           Enviar
         </Button>
       </Grid>
