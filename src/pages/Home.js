@@ -11,6 +11,7 @@ import React, { useRef, useState } from "react";
 import {
   signInWithPopup,
   GoogleAuthProvider,
+  FacebookAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   getAuth,
@@ -23,10 +24,15 @@ import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
-const provider = new GoogleAuthProvider();
+const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
 
 const onGoogleSignIn = async (auth) => {
-  return signInWithPopup(auth, provider);
+  return signInWithPopup(auth, googleProvider);
+};
+
+const onFacebookSignIn = async (auth) => {
+  return signInWithPopup(auth, facebookProvider);
 };
 
 const onEmailPasswordSignIn = async (auth, email, password) => {
@@ -92,8 +98,10 @@ const GoogleButton = () => {
 };
 
 const FacebookButton = () => {
+  const auth = getAuth();
   return (
     <SSOProviderButton
+      onPress={() => onFacebookSignIn(auth)}
       color={FACEBOOK_BLUE}
       text={"Continuar con Facebook"}
       icon={require("../assets/facebook.png")}
