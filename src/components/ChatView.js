@@ -5,7 +5,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/auth";
@@ -97,6 +97,7 @@ const ChatView = ({ messages, conversationId }) => {
   const loggedInUser = useSelector(selectUser);
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
+  const bottomRef = useRef(null);
 
   const handleMessageSending = () => {
     console.log("Sending message: ", message);
@@ -105,31 +106,37 @@ const ChatView = ({ messages, conversationId }) => {
     setSelectedFile("");
   };
 
+  useEffect(() => {
+    messages?.length > 0 &&
+      bottomRef.current?.scrollIntoView({
+        block: "end",
+        inline: "nearest",
+        behavior: "smooth",
+      });
+  }, [messages]);
+
   return (
     <>
-      <Grid
-        alignItems={"flex-end"}
-        container
-        sx={{ height: 500, overflowY: "scroll" }}
-      >
+      <Grid container sx={{ height: 500, overflowY: "scroll" }}>
         <Grid
           style={{
             paddingLeft: 10,
             paddingRight: 10,
           }}
           item
-          rowSpacing={2}
           container
           xs={12}
         >
           {messages?.length > 0 ? (
-            messages.map((message) => (
-              <Message
-                key={`${message.body}-${message.sentAt}-${message.from}`}
-                selfMessage={message.sent_by === loggedInUser.uid}
-                {...message}
-              />
-            ))
+            <Box ref={bottomRef}>
+              {messages.map((message) => (
+                <Message
+                  key={`${message.body}-${message.sentAt}-${message.from}`}
+                  selfMessage={message.sent_by === loggedInUser.uid}
+                  {...message}
+                />
+              ))}
+            </Box>
           ) : (
             <Box
               sx={{
