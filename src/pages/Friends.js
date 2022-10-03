@@ -17,7 +17,8 @@ import {
   TextField,
 } from "@mui/material";
 import ChatView from "../components/ChatView";
-import FriendController from "../firebase/controllers/friends";
+import UserController from "../firebase/controllers/users";
+import ConversationsController from "../firebase/controllers/conversations";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/auth";
 
@@ -50,14 +51,7 @@ const AddFriend = () => {
   );
 };
 
-const getFriendName = (relationship, loggedInUser) => {
-  return relationship.user_1_id === loggedInUser.uid
-    ? relationship.user_2_name
-    : relationship.user_1_name;
-};
-const FriendList = ({ selectedFriend, onSelectConversation, friendList }) => {
-  const loggedInUser = useSelector(selectUser);
-
+const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
   return (
     <Grid item xs={12}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
@@ -66,15 +60,12 @@ const FriendList = ({ selectedFriend, onSelectConversation, friendList }) => {
       <div id="list-container">
         {friendList && friendList?.length > 0 ? (
           <List dense={false}>
-            {friendList.map((relationship) => (
+            {friendList.map((friend) => (
               <ListItemButton
-                selected={
-                  selectedFriend?.id === relationship.user_1_id ||
-                  selectedFriend?.id === relationship.user_2_id
-                }
-                key={relationship.id}
+                selected={selectedFriend?.uid === friend.uid}
+                key={friend.uid}
                 onClick={() => {
-                  onSelectConversation(relationship);
+                  onSelectFriend(friend);
                 }}
               >
                 <ListItemAvatar>
@@ -83,7 +74,7 @@ const FriendList = ({ selectedFriend, onSelectConversation, friendList }) => {
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                  primary={getFriendName(relationship, loggedInUser)}
+                  primary={friend.name}
                   secondary={true ? "Secondary text" : null}
                 />
               </ListItemButton>
@@ -105,23 +96,24 @@ const FriendList = ({ selectedFriend, onSelectConversation, friendList }) => {
   );
 };
 
-const LeftContainer = ({ onSelectConversation, selectedFriend }) => {
+const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
   const [friendList, setFriendList] = useState([]);
+  const loggedInUser = useSelector(selectUser);
   //make listener here
-  const suscribeToFriendsList = async () => {
+  const suscribeToFriendsList = useCallback(async () => {
     try {
-      const res = await FriendController.getFriends();
-      console.log("the res is ", res);
-      setFriendList(res);
+      if (!loggedInUser) return;
+      const res = await UserController.getUserFriends(loggedInUser.uid);
+      setFriendList(res?.friends);
     } catch (e) {
       console.log("the error is ", e);
     }
-  };
+  }, [loggedInUser]);
 
   useEffect(() => {
     console.log("running useEffect to suscribe to friends list");
     suscribeToFriendsList();
-  }, []);
+  }, [suscribeToFriendsList]);
 
   return (
     <Grid container item xs={6}>
@@ -129,42 +121,52 @@ const LeftContainer = ({ onSelectConversation, selectedFriend }) => {
       <FriendList
         friendList={friendList}
         selectedFriend={selectedFriend}
-        onSelectConversation={onSelectConversation}
+        onSelectFriend={onSelectFriend}
       />
     </Grid>
   );
 };
 
-const Conversation = ({ selectedRelationship }) => {
-  const loggedInUser = useSelector(selectUser);
+const Conversation = ({ selectedFriend }) => {
+  const [conversation, setConversation] = useState(null);
+
+  useEffect(() => {
+    if (!selectedFriend) {
+      return;
+    }
+
+    const listener = ConversationsController.listenConversation(
+      selectedFriend?.conversation_id,
+      setConversation
+    );
+    return () => {
+      console.log("will unsuscribe");
+      listener && listener();
+    };
+  }, [selectedFriend]);
+
   return (
     <Grid item xs={6}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-        {`Conversación con ${getFriendName(
-          selectedRelationship,
-          loggedInUser
-        )}`}
+        {`Conversación con ${selectedFriend.name}`}
       </Typography>
       <div id="conversation-container">
-        <ChatView conversation={selectedRelationship.conversation} />
-        {/* <ChatView conversation={fakeConversation} /> */}
+        <ChatView conversation={conversation} />
       </div>
     </Grid>
   );
 };
 
 export default function FriendsSearch() {
-  const [selectedRelationship, setSelectedFriend] = useState(null);
+  const [selectedFriend, setSelectedFriend] = useState(null);
 
   return (
     <Grid sx={{ paddingX: 5 }} alignItems={"flex-start"} container spacing={2}>
       <LeftContainer
-        onSelectConversation={setSelectedFriend}
-        selectedFriend={selectedRelationship}
+        onSelectFriend={setSelectedFriend}
+        selectedFriend={selectedFriend}
       />
-      {selectedRelationship && (
-        <Conversation selectedRelationship={selectedRelationship} />
-      )}
+      {selectedFriend && <Conversation selectedFriend={selectedFriend} />}
     </Grid>
   );
 }

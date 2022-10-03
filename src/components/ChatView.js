@@ -1,14 +1,21 @@
-import { Button, Grid, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React from "react";
 import SendIcon from "@mui/icons-material/Send";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/auth";
+import { Box } from "@mui/system";
 
 const Message = ({
   selfMessage,
   body = "Conversación",
   from = "Santiago Topo",
-  sentAt = "2020-02-21 14:40",
+  sent_at,
   imageUrl,
 }) => {
   return (
@@ -52,7 +59,7 @@ const Message = ({
           textAlign: selfMessage ? "right" : "left",
         }}
       >
-        {`${selfMessage ? "Tú" : from} : ${sentAt}`}
+        {`${selfMessage ? "Tú" : from} : ${sent_at?.toDate().toLocaleString()}`}
       </Typography>
     </Grid>
   );
@@ -77,13 +84,25 @@ const ChatView = ({ conversation }) => {
           container
           xs={12}
         >
-          {conversation.map((message) => (
-            <Message
-              key={`${message.body}-${message.sentAt}-${message.from}`}
-              selfMessage={message.sent_by === loggedInUser.uid}
-              {...message}
-            />
-          ))}
+          {conversation?.length > 0 ? (
+            conversation.map((message) => (
+              <Message
+                key={`${message.body}-${message.sentAt}-${message.from}`}
+                selfMessage={message.sent_by === loggedInUser.uid}
+                {...message}
+              />
+            ))
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                margin: 5,
+                justifyContent: "center",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
         </Grid>
       </Grid>
       <Grid container alignItems={"center"} spacing={2} sx={{ padding: 1 }}>
