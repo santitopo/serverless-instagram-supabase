@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import ChatView from "../components/ChatView";
 import UserController from "../firebase/controllers/users";
-import ConversationsController from "../firebase/controllers/conversations";
+import MessagesController from "../firebase/controllers/messages";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/auth";
 
@@ -128,16 +128,16 @@ const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
 };
 
 const Conversation = ({ selectedFriend }) => {
-  const [conversation, setConversation] = useState(null);
+  const [messages, setMessages] = useState(null);
 
   useEffect(() => {
     if (!selectedFriend) {
       return;
     }
 
-    const listener = ConversationsController.listenConversation(
+    const listener = MessagesController.listenConversation(
       selectedFriend?.conversation_id,
-      setConversation
+      setMessages
     );
     return () => {
       console.log("will unsuscribe");
@@ -151,7 +151,10 @@ const Conversation = ({ selectedFriend }) => {
         {`Conversación con ${selectedFriend.name}`}
       </Typography>
       <div id="conversation-container">
-        <ChatView conversation={conversation} />
+        <ChatView
+          conversationId={selectedFriend?.conversation_id}
+          messages={messages}
+        />
       </div>
     </Grid>
   );

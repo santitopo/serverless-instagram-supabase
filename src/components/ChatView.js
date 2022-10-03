@@ -5,11 +5,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/auth";
 import { Box } from "@mui/system";
+import MessagesController from "../firebase/controllers/messages";
+import { Timestamp } from "firebase/firestore";
+import FileUploader from "./FileUploader";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { v4 as uuidv4 } from "uuid";
 
 const Message = ({
   selfMessage,
@@ -65,8 +70,41 @@ const Message = ({
   );
 };
 
-const ChatView = ({ conversation }) => {
+const onSendMessage = async (conversationId, message, sentBy, selectedFile) => {
+  try {
+    const storage = getStorage();
+
+    let imageUrl = "";
+    if (selectedFile) {
+      const randomId = uuidv4();
+      const imageRef = ref(storage, `messages/${sentBy}/${randomId}.jpg`);
+      await uploadBytes(imageRef, selectedFile);
+      imageUrl = await getDownloadURL(imageRef);
+      console.log("finished uploading picture", imageUrl);
+    }
+    return MessagesController.sendMessage(conversationId, {
+      body: message,
+      sent_by: sentBy,
+      sent_at: Timestamp.now(),
+      imageUrl,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const ChatView = ({ messages, conversationId }) => {
   const loggedInUser = useSelector(selectUser);
+  const [message, setMessage] = useState("");
+  const [selectedFile, setSelectedFile] = useState("");
+
+  const handleMessageSending = () => {
+    console.log("Sending message: ", message);
+    onSendMessage(conversationId, message, loggedInUser.uid, selectedFile);
+    setMessage("");
+    setSelectedFile("");
+  };
+
   return (
     <>
       <Grid
@@ -84,8 +122,8 @@ const ChatView = ({ conversation }) => {
           container
           xs={12}
         >
-          {conversation?.length > 0 ? (
-            conversation.map((message) => (
+          {messages?.length > 0 ? (
+            messages.map((message) => (
               <Message
                 key={`${message.body}-${message.sentAt}-${message.from}`}
                 selfMessage={message.sent_by === loggedInUser.uid}
@@ -112,12 +150,27 @@ const ChatView = ({ conversation }) => {
             fullWidth
             label="Escriba su mensaje"
             variant="outlined"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           />
         </Grid>
         <Grid item xs={2} alignSelf={"center"}>
-          <Button variant="contained" endIcon={<SendIcon />}>
+          <Button
+            onClick={handleMessageSending}
+            disabled={!message}
+            variant="contained"
+            endIcon={<SendIcon />}
+          >
             Enviar
           </Button>
+          <div id="text-field-container">
+            <FileUploader
+              text={"Adjuntar"}
+              onFileSelectSuccess={(file) => setSelectedFile(file)}
+              onFileSelectError={({ error }) => alert(error)}
+              selectedFileName={selectedFile?.name}
+            />
+          </div>
         </Grid>
       </Grid>
     </>

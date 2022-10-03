@@ -19,7 +19,6 @@ export const listenDocsToArray = (collectionName, callback, orderByParam) => {
 
   return onSnapshot(orderBy ? queryRef : collectionRef, (querySnapshot) => {
     const documents = [];
-    console.log("Current data: ", querySnapshot);
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       documents.push({ id: doc.id, ...data });
