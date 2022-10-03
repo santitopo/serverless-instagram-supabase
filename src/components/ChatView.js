@@ -95,7 +95,7 @@ const onSendMessage = async (conversationId, message, sentBy, selectedFile) => {
   }
 };
 
-const ChatView = ({ messages, conversationId }) => {
+const ChatView = ({ messages, conversationId, friendName }) => {
   const loggedInUser = useSelector(selectUser);
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
@@ -129,15 +129,24 @@ const ChatView = ({ messages, conversationId }) => {
           container
           xs={12}
         >
-          {messages?.length > 0 ? (
-            <Box ref={bottomRef}>
-              {messages.map((message) => (
-                <Message
-                  key={`${message.body}-${message.sentAt}-${message.from}`}
-                  selfMessage={message.sent_by === loggedInUser.uid}
-                  {...message}
-                />
-              ))}
+          {messages ? (
+            <Box ref={bottomRef} style={{ width: "100%" }}>
+              {messages.length > 0 ? (
+                messages.map((message) => (
+                  <Message
+                    key={`${message.body}-${message.sentAt}-${message.from}`}
+                    selfMessage={message.sent_by === loggedInUser.uid}
+                    {...message}
+                  />
+                ))
+              ) : (
+                <Typography
+                  align="center"
+                  variant="h8"
+                  style={{ textAlign: "center" }}
+                  color={"gray"}
+                >{`Aún no tienes mensajes con ${friendName}!`}</Typography>
+              )}
             </Box>
           ) : (
             <Box

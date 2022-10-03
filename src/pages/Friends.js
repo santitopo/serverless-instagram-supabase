@@ -150,6 +150,7 @@ const Conversation = ({ selectedFriend }) => {
         <ChatView
           conversationId={selectedFriend?.conversation_id}
           messages={messages}
+          friendName={selectedFriend.name}
         />
       </div>
     </Grid>
