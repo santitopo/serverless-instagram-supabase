@@ -62,8 +62,8 @@ const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
           <List dense={false}>
             {friendList.map((friend) => (
               <ListItemButton
-                selected={selectedFriend?.uid === friend.uid}
-                key={friend.uid}
+                selected={selectedFriend?.uid === friend.id}
+                key={friend.id}
                 onClick={() => {
                   onSelectFriend(friend);
                 }}
@@ -99,21 +99,17 @@ const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
 const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
   const [friendList, setFriendList] = useState([]);
   const loggedInUser = useSelector(selectUser);
-  //make listener here
-  const suscribeToFriendsList = useCallback(async () => {
-    try {
-      if (!loggedInUser) return;
-      const res = await UserController.getUserFriends(loggedInUser.uid);
-      setFriendList(res?.friends);
-    } catch (e) {
-      console.log("the error is ", e);
-    }
-  }, [loggedInUser]);
 
   useEffect(() => {
-    console.log("running useEffect to suscribe to friends list");
-    suscribeToFriendsList();
-  }, [suscribeToFriendsList]);
+    if (!loggedInUser) return;
+    const listener = UserController.listenUserFriends(
+      loggedInUser.uid,
+      setFriendList
+    );
+    return () => {
+      listener && listener();
+    };
+  }, [loggedInUser]);
 
   return (
     <Grid container item xs={6}>
@@ -128,7 +124,7 @@ const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
 };
 
 const Conversation = ({ selectedFriend }) => {
-  const [messages, setMessages] = useState(null);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     if (!selectedFriend) {

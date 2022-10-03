@@ -1,12 +1,12 @@
-import getDocFromFirestore from "../utils/getDocFromFirestore";
+import listenDocsToArray from "../utils/listenDocsToArray";
 import setDocInCollection from "../utils/setDocInCollection";
 
 class UserController {
   postUser(userData, uid) {
     return setDocInCollection("users", userData, uid);
   }
-  getUserFriends(uid) {
-    return getDocFromFirestore("users", uid);
+  listenUserFriends(userId, callback) {
+    return listenDocsToArray(`users/${userId}/friends`, callback);
   }
 }
 

@@ -43,17 +43,19 @@ const Message = ({
       </Typography>
       {imageUrl && (
         <div style={{ textAlign: selfMessage ? "right" : "left" }}>
-          <img
-            alt="Attachment"
-            src={imageUrl}
-            style={{
-              maxWidth: "40%",
-              maxHeight: 200,
-              objectFit: "contain",
-              paddingBottom: 5,
-              paddingTop: 5,
-            }}
-          />
+          <a href={imageUrl} target="_blank" rel="noreferrer">
+            <img
+              alt="Attachment"
+              src={imageUrl}
+              style={{
+                maxWidth: "40%",
+                maxHeight: 200,
+                objectFit: "contain",
+                paddingBottom: 5,
+                paddingTop: 5,
+              }}
+            />
+          </a>
         </div>
       )}
       <Typography
