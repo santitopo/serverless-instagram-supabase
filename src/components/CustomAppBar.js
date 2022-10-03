@@ -8,7 +8,7 @@ import { getAuth, signOut } from "firebase/auth";
 import { Button, IconButton, Typography, useTheme } from "@mui/material";
 import { useIsLoggedIn } from "../providers/Authentication";
 
-const CustomAppBar = ({ title, setIsOpened }) => {
+const CustomAppBar = ({ title }) => {
   const auth = getAuth();
   const theme = useTheme();
   const isLoggedIn = useIsLoggedIn();
@@ -25,16 +25,6 @@ const CustomAppBar = ({ title, setIsOpened }) => {
           pr: "24px", // keep right padding when drawer closed
         }}
       >
-        <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ mr: 2 }}
-          onClick={() => setIsOpened((p) => !p)}
-        >
-          <MenuIcon />
-        </IconButton>
         <Typography
           color={theme.palette.background}
           component="h1"
