@@ -7,10 +7,15 @@ import Avatar from "@mui/material/Avatar";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FolderIcon from "@mui/icons-material/Folder";
-
 import SendIcon from "@mui/icons-material/Send";
 import { Button, ListItemButton, TextField } from "@mui/material";
 import ChatView from "../components/ChatView";
+import { addDocToCollection }  from "../firebase/utils/addDocToCollection";
+import { getDocsToArray } from "../firebase/utils/getDocsToArray";
+import { deleteDocOnCollection } from "../firebase/utils/deleteDocOnCollection";
+import { updateDocOnCollection } from "../firebase/utils/updateDocOnCollection";
+import { selectUser } from "../redux/auth";
+import { useSelector } from "react-redux";
 
 const defaultProfile =
   "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
@@ -22,7 +27,27 @@ const fakeFriends = [
   { name: "Tommy", profile: defaultProfile, id: 4 },
 ];
 
+
+const sendFriendRequest = async (email, user) => {
+  const users = await getDocsToArray("users");
+  const friendRequest = {
+      from: user.email,
+      to: email,
+      status: "pending",
+  };
+  if (users.find((user) => user.email === email)) {
+    alert(`Se le ha enviado una solicitud de amistad a ${email}`)
+  } else {
+      alert(`Se le ha enviado una solicitud al mail de ${email}`);
+  }
+
+  await addDocToCollection("friendRequests", friendRequest);
+};
+
+
 const AddFriend = () => {
+  const [email, setEmail] = useState("");
+  const user = useSelector(selectUser);
   return (
     <Grid container spacing={2} item xs={12}>
       <Grid item xs={12}>
@@ -37,10 +62,12 @@ const AddFriend = () => {
           InputProps={{
             type: "search",
           }}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
       </Grid>
       <Grid alignSelf={"center"} item xs={2}>
-        <Button variant="contained" endIcon={<SendIcon />}>
+        <Button onClick={() => sendFriendRequest(email, user)} variant="contained" endIcon={<SendIcon />}>
           Enviar
         </Button>
       </Grid>
