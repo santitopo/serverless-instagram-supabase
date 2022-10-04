@@ -14,13 +14,13 @@ const Authentication = ({ children }) => {
     }
     const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
       if (fbUser) {
-        console.log({ fbUser });
         dispatch(
           authenticated({
             displayName: fbUser?.displayName,
             email: fbUser?.email,
             emailVerified: fbUser?.emailVerified,
             photoURL: fbUser?.photoURL,
+            uid: fbUser?.uid,
           })
         );
       } else {

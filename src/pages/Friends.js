@@ -1,37 +1,33 @@
 import "./Friends.css";
-import * as React from "react";
-import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
+import React, { useCallback, useEffect, useState } from "react";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FolderIcon from "@mui/icons-material/Folder";
 
 import SendIcon from "@mui/icons-material/Send";
-import { Button, ListItemButton, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  ListItemButton,
+  TextField,
+} from "@mui/material";
+import ChatView from "../components/ChatView";
+import UserController from "../firebase/controllers/users";
+import MessagesController from "../firebase/controllers/messages";
+import { useSelector } from "react-redux";
+import { selectUser } from "../redux/auth";
 
 const defaultProfile =
   "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
 
-const fakeFriends = [
-  { name: "Santiago Topo", profile: defaultProfile, id: 1 },
-  { name: "Intro", profile: defaultProfile, id: 2 },
-  { name: "Gio", profile: defaultProfile, id: 3 },
-  { name: "Tommy", profile: defaultProfile, id: 4 },
-];
-
 const AddFriend = () => {
   return (
-    <Grid container item xs={12}>
+    <Grid container spacing={2} item xs={12}>
       <Grid item xs={12}>
         <Typography sx={{ mt: 4 }} variant="h6" component="div">
           Agregar Amigo
@@ -46,70 +42,131 @@ const AddFriend = () => {
           }}
         />
       </Grid>
-      <Grid alignSelf={"center"} item xs={4}>
-        <Button sx={{ ml: 8 }} variant="contained" endIcon={<SendIcon />}>
-          Send
+      <Grid alignSelf={"center"} item xs={2}>
+        <Button variant="contained" endIcon={<SendIcon />}>
+          Enviar
         </Button>
       </Grid>
     </Grid>
   );
 };
 
-const FriendList = () => {
+const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
   return (
     <Grid item xs={12}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
         Amigos
       </Typography>
       <div id="list-container">
-        <List dense={false}>
-          {fakeFriends.map((friend) => (
-            <ListItemButton key={friend.id}>
-              <ListItemAvatar>
-                <Avatar src={friend.profile}>
-                  <FolderIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={friend.name}
-                secondary={true ? "Secondary text" : null}
-              />
-            </ListItemButton>
-          ))}
-        </List>
+        {friendList && friendList?.length > 0 ? (
+          <List dense={false}>
+            {friendList.map((friend) => (
+              <ListItemButton
+                selected={selectedFriend?.uid === friend.id}
+                key={friend.id}
+                onClick={() => {
+                  onSelectFriend(friend);
+                }}
+              >
+                <ListItemAvatar>
+                  <Avatar src={defaultProfile}>
+                    <FolderIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={friend.name}
+                  secondary={true ? "Secondary text" : null}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              margin: 5,
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
       </div>
     </Grid>
   );
 };
 
-const LeftContainer = () => {
+const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
+  const [friendList, setFriendList] = useState([]);
+  const loggedInUser = useSelector(selectUser);
+
+  useEffect(() => {
+    if (!loggedInUser) return;
+    const listener = UserController.listenUserFriends(
+      loggedInUser.uid,
+      setFriendList
+    );
+    return () => {
+      listener && listener();
+    };
+  }, [loggedInUser]);
+
   return (
     <Grid container item xs={6}>
       <AddFriend />
-      <FriendList />
+      <FriendList
+        friendList={friendList}
+        selectedFriend={selectedFriend}
+        onSelectFriend={onSelectFriend}
+      />
     </Grid>
   );
 };
-const Conversation = () => {
+
+const Conversation = ({ selectedFriend }) => {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    if (!selectedFriend) {
+      return;
+    }
+
+    const listener = MessagesController.listenConversation(
+      selectedFriend?.conversation_id,
+      setMessages
+    );
+    return () => {
+      console.log("will unsuscribe");
+      listener && listener();
+    };
+  }, [selectedFriend]);
+
   return (
     <Grid item xs={6}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-        Conversación
+        {`Conversación con ${selectedFriend.name}`}
       </Typography>
       <div id="conversation-container">
-        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-          Here should go the chat
-        </Typography>
+        <ChatView
+          conversationId={selectedFriend?.conversation_id}
+          messages={messages}
+          friendName={selectedFriend.name}
+        />
       </div>
     </Grid>
   );
 };
 
 export default function FriendsSearch() {
+  const [selectedFriend, setSelectedFriend] = useState(null);
+
   return (
-    <Grid sx={{ paddingX: 5 }} style={{ height: "80vh" }} container spacing={2}>
-      <LeftContainer />
-      <Conversation />
+    <Grid sx={{ paddingX: 5 }} alignItems={"flex-start"} container spacing={2}>
+      <LeftContainer
+        onSelectFriend={setSelectedFriend}
+        selectedFriend={selectedFriend}
+      />
+      {selectedFriend && <Conversation selectedFriend={selectedFriend} />}
     </Grid>
   );
 }
