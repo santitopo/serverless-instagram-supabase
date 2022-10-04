@@ -45,11 +45,18 @@ export default function Router(props) {
         },
         {
           path: "friends",
-          element: (isLoggedIn && isEmailVerified) ? <FriendsSearch /> : <VerifyEmail />,
+          element: isEmailVerified ? (
+            <FriendsSearch />
+          ) : isLoggedIn ? (
+            <VerifyEmail />
+          ) : (
+            <Navigate to="/home" replace />
+          ),
         },
         {
           path: "chats",
-          element: (isLoggedIn && isEmailVerified) ? <ChatScreen /> : <VerifyEmail />,
+          element:
+            isLoggedIn && isEmailVerified ? <ChatScreen /> : <VerifyEmail />,
         },
       ],
     },

@@ -21,7 +21,7 @@ import {
 import UserController from "../firebase/controllers/users";
 import "./Home.css";
 import { selectUser } from "../redux/auth";
-import { useIsEmailVerified, useIsLoggedIn } from "../providers/Authentication";
+import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
@@ -63,7 +63,7 @@ const onEmailPasswordSignUp = async (
         email,
         profilePicture: url,
       });
-      sendEmailVerification(userCredential.user)
+      sendEmailVerification(userCredential.user);
       console.log("added", user);
     }
   );
@@ -387,7 +387,6 @@ const Welcome = () => {
 
 export default function Home() {
   const isLoggedIn = useIsLoggedIn();
-  const isEmailVerified = useIsEmailVerified();
 
   return isLoggedIn ? <Welcome /> : <AuthForms />;
 }
