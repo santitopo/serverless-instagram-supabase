@@ -11,9 +11,11 @@ import React, { useRef, useState } from "react";
 import {
   signInWithPopup,
   GoogleAuthProvider,
+  FacebookAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   getAuth,
+  sendEmailVerification,
 } from "firebase/auth";
 
 import UserController from "../firebase/controllers/users";
@@ -24,10 +26,15 @@ import { useSelector } from "react-redux";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import FileUploader from "../components/FileUploader";
 
-const provider = new GoogleAuthProvider();
+const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
 
 const onGoogleSignIn = async (auth) => {
-  return signInWithPopup(auth, provider);
+  return signInWithPopup(auth, googleProvider);
+};
+
+const onFacebookSignIn = async (auth) => {
+  return signInWithPopup(auth, facebookProvider);
 };
 
 const onEmailPasswordSignIn = async (auth, email, password) => {
@@ -60,6 +67,7 @@ const onEmailPasswordSignUp = async (
         },
         fbUser.uid
       );
+      sendEmailVerification(userCredential.user);
       console.log("added", user);
     }
   );
@@ -96,8 +104,10 @@ const GoogleButton = () => {
 };
 
 const FacebookButton = () => {
+  const auth = getAuth();
   return (
     <SSOProviderButton
+      onPress={() => onFacebookSignIn(auth)}
       color={FACEBOOK_BLUE}
       text={"Continuar con Facebook"}
       icon={require("../assets/facebook.png")}
