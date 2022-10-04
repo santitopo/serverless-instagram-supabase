@@ -15,6 +15,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   getAuth,
+  sendEmailVerification,
 } from "firebase/auth";
 
 import UserController from "../firebase/controllers/users";
@@ -62,6 +63,7 @@ const onEmailPasswordSignUp = async (
         email,
         profilePicture: url,
       });
+      sendEmailVerification(userCredential.user)
       console.log("added", user);
     }
   );

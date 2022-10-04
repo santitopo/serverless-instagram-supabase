@@ -5,7 +5,8 @@ import ContainerWithDrawer from "./layouts/ContainerWithDrawer";
 import ChatScreen from "./pages/ChatScreen";
 import FriendsSearch from "./pages/Friends";
 import Home from "./pages/Home";
-import { useIsLoggedIn } from "./providers/Authentication";
+import VerifyEmail from "./pages/VerifyEmail";
+import { useIsEmailVerified, useIsLoggedIn } from "./providers/Authentication";
 
 const titlesFromPath = {
   "/home": "Serverless Chat",
@@ -16,6 +17,7 @@ const titlesFromPath = {
 export default function Router(props) {
   const [isDrawerOpened, setDrawerOpened] = useState(false);
   const isLoggedIn = useIsLoggedIn();
+  const isEmailVerified = useIsEmailVerified();
   const location = useLocation();
 
   return useRoutes([
@@ -39,15 +41,15 @@ export default function Router(props) {
         { path: "/", element: <Navigate to="/home" replace /> },
         {
           path: "home",
-          element: <Home />,
+          element: <Home /> ,
         },
         {
           path: "friends",
-          element: <FriendsSearch />,
+          element: (isLoggedIn && isEmailVerified) ? <FriendsSearch /> : <VerifyEmail/>,
         },
         {
           path: "chats",
-          element: <ChatScreen />,
+          element: (isLoggedIn && isEmailVerified) ? <ChatScreen /> : <VerifyEmail/>,
         },
       ],
     },
