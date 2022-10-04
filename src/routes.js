@@ -41,15 +41,15 @@ export default function Router(props) {
         { path: "/", element: <Navigate to="/home" replace /> },
         {
           path: "home",
-          element: <Home /> ,
+          element: <Home />,
         },
         {
           path: "friends",
-          element: (isLoggedIn && isEmailVerified) ? <FriendsSearch /> : <VerifyEmail/>,
+          element: (isLoggedIn && isEmailVerified) ? <FriendsSearch /> : <VerifyEmail />,
         },
         {
           path: "chats",
-          element: (isLoggedIn && isEmailVerified) ? <ChatScreen /> : <VerifyEmail/>,
+          element: (isLoggedIn && isEmailVerified) ? <ChatScreen /> : <VerifyEmail />,
         },
       ],
     },

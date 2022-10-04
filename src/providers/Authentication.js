@@ -42,11 +42,9 @@ export const useIsLoggedIn = () => {
 
 export const useIsEmailVerified = () => {
   const user = useSelector(selectUser);
-  if (user != null) {
-    return user.emailVerified;
-  } 
-  else return true
-  
+
+  return (user == null) || user.emailVerified
+
 };
 
 export default Authentication;
