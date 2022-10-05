@@ -20,6 +20,8 @@ class UserController {
       `users/${user1Id}/friends`,
       {
         conversation_id: conversationId,
+        email: user2.email,
+        profilePicture: user2.profilePicture,
         name: user2.name,
       },
       user2Id
@@ -29,6 +31,8 @@ class UserController {
       `users/${user2Id}/friends`,
       {
         conversation_id: conversationId,
+        email: user1.email,
+        profilePicture: user1.profilePicture,
         name: user1.name,
       },
       user1Id

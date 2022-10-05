@@ -8,11 +8,16 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FolderIcon from "@mui/icons-material/Folder";
 import SendIcon from "@mui/icons-material/Send";
-import { Box, Button, ListItemButton, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  ListItemButton,
+  TextField,
+  useTheme,
+} from "@mui/material";
 import ChatView from "../components/ChatView";
 
 import { addDocToCollection } from "../firebase/utils/addDocToCollection";
-import { getDocsToArray } from "../firebase/utils/getDocsToArray";
 import { selectUser } from "../redux/auth";
 
 import UserController from "../firebase/controllers/users";
@@ -23,15 +28,39 @@ const sendFriendRequest = async (email, user) => {
   const friendRequest = {
     from: user.email,
     to: email,
-    status: "pending",
   };
   alert(`Se le ha enviado una solicitud de amistad a ${email}`);
   await addDocToCollection("friendRequests", friendRequest);
 };
 
-const AddFriend = () => {
+const AddFriend = ({ friendList }) => {
   const [email, setEmail] = useState("");
-  const user = useSelector(selectUser);
+  const [error, setError] = useState(null);
+  const loggedInUser = useSelector(selectUser);
+  const theme = useTheme();
+
+  function isValidEmail(email) {
+    return /\S+@\S+\.\S+/.test(email);
+  }
+
+  const handleSubmit = async () => {
+    try {
+      if (!isValidEmail(email)) {
+        return setError("Email es invalido!");
+      }
+      const foundFriend = friendList?.find((friend) => friend.email === email);
+      if (foundFriend) {
+        return setError("Ya eres amigo de este usuario!");
+      }
+      await sendFriendRequest(email, loggedInUser);
+      setEmail("");
+      setError(null);
+    } catch (e) {
+      console.log(e?.message);
+      setError("Error enviando solicitud de amistad");
+    }
+  };
+
   return (
     <Grid container spacing={2} item xs={12}>
       <Grid item xs={12}>
@@ -42,20 +71,25 @@ const AddFriend = () => {
       <Grid alignSelf={"center"} item xs={8}>
         <TextField
           fullWidth
+          error={!!error}
           label="Dirección de Email"
           InputProps={{
             type: "search",
           }}
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(event) => {
+            setError(null);
+            setEmail(event.target.value);
+          }}
         />
+        {error && (
+          <Typography color={theme.palette.error.main}>{error}</Typography>
+        )}
       </Grid>
       <Grid alignSelf={"center"} item xs={2}>
         <Button
-          onClick={() => {
-            sendFriendRequest(email, user);
-            setEmail("");
-          }}
+          onClick={handleSubmit}
+          disabled={!email || email === ""}
           variant="contained"
           endIcon={<SendIcon />}
         >
@@ -84,7 +118,7 @@ const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
                 }}
               >
                 <ListItemAvatar>
-                  <Avatar src={friend.profile}>
+                  <Avatar src={friend.profilePicture}>
                     <FolderIcon />
                   </Avatar>
                 </ListItemAvatar>
@@ -125,7 +159,7 @@ const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
 
   return (
     <Grid container item xs={6}>
-      <AddFriend />
+      <AddFriend friendList={friendList} />
       <FriendList
         friendList={friendList}
         selectedFriend={selectedFriend}
