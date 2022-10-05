@@ -12,6 +12,18 @@ class UserController {
     return listenDocsToArray(`users/${userId}/friends`, callback);
   }
 
+  async registerNotificationToken(userId, token) {
+    const user = await getDocFromFirestore("users", userId);
+    if (!user) {
+      return;
+    }
+    return setDocInCollection(
+      "users",
+      { ...user, notificationToken: token },
+      userId
+    );
+  }
+
   async addFriends(conversationId, user1Id, user2Id) {
     // update user 1
     const user1 = await getDocFromFirestore("users", user1Id);

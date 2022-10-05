@@ -7,7 +7,7 @@ import {
   Button,
   useTheme,
 } from "@mui/material";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   signInWithPopup,
   GoogleAuthProvider,
@@ -32,7 +32,7 @@ const facebookProvider = new FacebookAuthProvider();
 const SSOSignIn = async (provider) => {
   const auth = getAuth();
   const userCredential = await signInWithPopup(auth, provider);
-  const fbUser = userCredential.user
+  const fbUser = userCredential.user;
   const user = await UserController.postUser(
     {
       name: fbUser.displayName,
@@ -42,7 +42,7 @@ const SSOSignIn = async (provider) => {
     fbUser.uid
   );
   console.log("added", user);
-}
+};
 
 const onEmailPasswordSignIn = async (auth, email, password) => {
   return signInWithEmailAndPassword(auth, email, password);

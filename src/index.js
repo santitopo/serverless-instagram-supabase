@@ -11,6 +11,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAEQRNTnPfAkvFxCEXW0KteKbU3Feb4OvY",
@@ -25,6 +26,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 getAuth(firebaseApp);
 getFirestore(firebaseApp);
 getStorage(firebaseApp);
+getMessaging(firebaseApp);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 

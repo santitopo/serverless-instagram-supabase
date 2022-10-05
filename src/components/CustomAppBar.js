@@ -5,18 +5,16 @@ import Toolbar from "@mui/material/Toolbar";
 import { getAuth, signOut } from "firebase/auth";
 
 import { Button, Typography, useTheme } from "@mui/material";
-import { useIsEmailVerified, useIsLoggedIn } from "../providers/Authentication";
+import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/auth";
+import UserController from "../firebase/controllers/users";
 
 const CustomAppBar = ({ title }) => {
   const auth = getAuth();
   const theme = useTheme();
   const isLoggedIn = useIsLoggedIn();
   const loggedInUser = useSelector(selectUser);
-
-  const isEmailVerified = useIsEmailVerified();
-  console.log("logged in user is", loggedInUser);
 
   return (
     <AppBar
@@ -60,6 +58,10 @@ const CustomAppBar = ({ title }) => {
             onClick={() => {
               signOut(auth)
                 .then(() => {
+                  UserController.registerNotificationToken(
+                    loggedInUser.uid,
+                    null
+                  );
                   console.log("logged out successfully");
                 })
                 .catch((error) => {
