@@ -45,14 +45,12 @@ const rejectFriendRequest = async (friendRequest) => {
 const getPendingFriendRequests = async (user) => {
   const friendRequests = await getDocsToArray("friendRequests");
   return friendRequests?.filter(
-    (friendRequest) =>
-      friendRequest?.to === user?.email && friendRequest?.status === "pending"
+    (friendRequest) => friendRequest?.to === user?.email
   );
 };
 
 const getUserFromPendingFriendRequest = async (friendRequest) => {
   const user = await UserController.getUserFromEmail(friendRequest?.from);
-  console.log("found user", user);
   return user;
 };
 

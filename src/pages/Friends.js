@@ -29,31 +29,6 @@ const sendFriendRequest = async (email, user) => {
   await addDocToCollection("friendRequests", friendRequest);
 };
 
-const getFriends = async (user) => {
-  if (!user) return [];
-  const friendRequests = await getDocsToArray("friendRequests");
-  const users = await getDocsToArray("users");
-  const friends = friendRequests.filter(
-    (friendRequest) =>
-      (friendRequest.from === user.email &&
-        friendRequest.status === "accepted") ||
-      (friendRequest.to === user.email && friendRequest.status === "accepted")
-  );
-  return friends.map((friend) => {
-    const friendUser = users.find(
-      (user) => user.email === friend.from || user.email === friend.to
-    );
-    if (friendUser) {
-      return {
-        email: friendUser.email,
-        name: friendUser.name,
-        id: friendUser.id,
-        profile: friendUser.profilePicture,
-      };
-    }
-  });
-};
-
 const AddFriend = () => {
   const [email, setEmail] = useState("");
   const user = useSelector(selectUser);
