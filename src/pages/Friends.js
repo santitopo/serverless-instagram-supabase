@@ -130,7 +130,7 @@ const user = useSelector(selectUser);
                 }}
               >
                 <ListItemAvatar>
-                  <Avatar src={friend.profilePicture}>
+                  <Avatar src={friend.profile}>
                     <FolderIcon />
                   </Avatar>
                 </ListItemAvatar>

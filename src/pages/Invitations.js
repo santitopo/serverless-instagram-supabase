@@ -10,15 +10,18 @@ import FolderIcon from "@mui/icons-material/Folder";
 import { Button, ListItemButton } from "@mui/material";
 import { getDocsToArray } from "../firebase/utils/getDocsToArray";
 import { deleteDocOnCollection } from "../firebase/utils/deleteDocOnCollection";
-import { updateDocOnCollection } from "../firebase/utils/updateDocOnCollection";
+import { setDocInCollection } from "../firebase/utils/setDocInCollection";
 import { selectUser } from "../redux/auth";
 import { useSelector } from "react-redux";
-
+import {
+    Box,
+    CircularProgress
+  } from "@mui/material";
 const defaultProfile =
   "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
 
 const acceptFriendRequest = async (friendRequest) => {
-  await updateDocOnCollection("friendRequests", friendRequest.id, {
+  await setDocInCollection("friendRequests", friendRequest.id, {
     status: "accepted",
   });
 };
@@ -92,53 +95,65 @@ const FriendRequestsList = ({ user }) => {
         Invitaciones
       </Typography>
       <div id="list-container">
-        <List dense={false}>
-          {friendRequests.map((friendRequest) => (
-            <ListItemButton key={friendRequest.id}>
-              <ListItemAvatar>
-                <Avatar
-                  src={
-                    friendRequest.user?.profilePicture
-                      ? friendRequest.user.profilePicture
-                      : defaultProfile
+        {friendRequests && friendRequests.length > 0 ? (
+          <List dense={false}>
+            {friendRequests.map((friendRequest) => (
+              <ListItemButton key={friendRequest.id}>
+                <ListItemAvatar>
+                  <Avatar
+                    src={
+                      friendRequest.user?.profilePicture
+                        ? friendRequest.user.profilePicture
+                        : defaultProfile
+                    }
+                  >
+                    <FolderIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={friendRequest.from}
+                  secondary={
+                    friendRequest.status === "pending" ? "Pendiente" : ""
+                  }
+                />
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={() =>
+                    acceptFriendRequest(friendRequest) &&
+                    setFriendRequests(
+                      friendRequests.filter((fr) => fr.id !== friendRequest.id)
+                    )
                   }
                 >
-                  <FolderIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={friendRequest.from}
-                secondary={
-                  friendRequest.status === "pending" ? "Pendiente" : ""
-                }
-              />
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() =>
-                  acceptFriendRequest(friendRequest) &&
-                  setFriendRequests(
-                    friendRequests.filter((fr) => fr.id !== friendRequest.id)
-                  )
-                }
-              >
-                Aceptar
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() =>
-                  rejectFriendRequest(friendRequest) &&
-                  setFriendRequests(
-                    friendRequests.filter((fr) => fr.id !== friendRequest.id)
-                  )
-                }
-              >
-                Rechazar
-              </Button>
-            </ListItemButton>
-          ))}
-        </List>
+                  Aceptar
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() =>
+                    rejectFriendRequest(friendRequest) &&
+                    setFriendRequests(
+                      friendRequests.filter((fr) => fr.id !== friendRequest.id)
+                    )
+                  }
+                >
+                  Rechazar
+                </Button>
+              </ListItemButton>
+            ))}
+          </List>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              margin: 5,
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
       </div>
     </Grid>
   );
