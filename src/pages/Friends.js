@@ -1,5 +1,5 @@
 import "./Friends.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import List from "@mui/material/List";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
@@ -10,7 +10,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import SendIcon from "@mui/icons-material/Send";
 import { Button, ListItemButton, TextField } from "@mui/material";
 import ChatView from "../components/ChatView";
-import { addDocToCollection }  from "../firebase/utils/addDocToCollection";
+import { addDocToCollection } from "../firebase/utils/addDocToCollection";
 import { getDocsToArray } from "../firebase/utils/getDocsToArray";
 import { deleteDocOnCollection } from "../firebase/utils/deleteDocOnCollection";
 import { updateDocOnCollection } from "../firebase/utils/updateDocOnCollection";
@@ -20,30 +20,66 @@ import { useSelector } from "react-redux";
 const defaultProfile =
   "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
 
-const fakeFriends = [
-  { name: "Santiago Topo", profile: defaultProfile, id: 1 },
-  { name: "Intro", profile: defaultProfile, id: 2 },
-  { name: "Gio", profile: defaultProfile, id: 3 },
-  { name: "Tommy", profile: defaultProfile, id: 4 },
-];
-
 
 const sendFriendRequest = async (email, user) => {
   const users = await getDocsToArray("users");
   const friendRequest = {
-      from: user.email,
-      to: email,
-      status: "pending",
+    from: user.email,
+    to: email,
+    status: "pending",
   };
   if (users.find((user) => user.email === email)) {
-    alert(`Se le ha enviado una solicitud de amistad a ${email}`)
+    alert(`Se le ha enviado una solicitud de amistad a ${email}`);
   } else {
-      alert(`Se le ha enviado una solicitud al mail de ${email}`);
+    alert(`Se le ha enviado una solicitud al mail de ${email}`);
   }
 
   await addDocToCollection("friendRequests", friendRequest);
 };
 
+const getFriends = async (user) => {
+  if (!user) return [];
+  const friendRequests = await getDocsToArray("friendRequests");
+  const users = await getDocsToArray("users");
+  const friends = friendRequests.filter(
+    (friendRequest) =>
+      (friendRequest.from === user.email &&
+        friendRequest.status === "accepted") ||
+      (friendRequest.to === user.email && friendRequest.status === "accepted")
+  );
+  return friends.map((friend) => {
+    const friendUser = users.find(
+      (user) => user.email === friend.to || user.email === friend.from
+    );
+    if (friendUser) {
+      return {
+        email: friendUser.email,
+        name: friendUser.name,
+        id: friendUser.id,
+        profile: friendUser.profilePicture,
+      };
+    }
+  });
+};
+
+const acceptFriendRequest = async (friendRequest) => {
+  await updateDocOnCollection("friendRequests", friendRequest.id, {
+    status: "accepted",
+  });
+};
+
+const rejectFriendRequest = async (friendRequest) => {
+  await deleteDocOnCollection("friendRequests", friendRequest.id);
+};
+
+const getPendingFriendRequests = async (user) => {
+  const friendRequests = await getDocsToArray("friendRequests");
+  return friendRequests.filter(
+    (friendRequest) =>
+      (friendRequest.to === user.email && friendRequest.status === "pending") ||
+      (friendRequest.from === user.email && friendRequest.status === "pending")
+  );
+};
 
 const AddFriend = () => {
   const [email, setEmail] = useState("");
@@ -67,7 +103,11 @@ const AddFriend = () => {
         />
       </Grid>
       <Grid alignSelf={"center"} item xs={2}>
-        <Button onClick={() => sendFriendRequest(email, user)} variant="contained" endIcon={<SendIcon />}>
+        <Button
+          onClick={() => sendFriendRequest(email, user) && setEmail("")}
+          variant="contained"
+          endIcon={<SendIcon />}
+        >
           Enviar
         </Button>
       </Grid>
@@ -76,6 +116,17 @@ const AddFriend = () => {
 };
 
 const FriendList = ({ selectedFriend, onSelectConversation }) => {
+  const user = useSelector(selectUser);
+  const [friends, setFriends] = useState([]);
+
+  useEffect(() => {
+    const getFriendsFromFirebase = async () => {
+      const friends = await getFriends(user);
+      setFriends(friends);
+    };
+    getFriendsFromFirebase();
+  }, [user]);
+
   return (
     <Grid item xs={12}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
@@ -83,25 +134,27 @@ const FriendList = ({ selectedFriend, onSelectConversation }) => {
       </Typography>
       <div id="list-container">
         <List dense={false}>
-          {fakeFriends.map((friend) => (
-            <ListItemButton
-              selected={selectedFriend?.id === friend.id}
-              key={friend.id}
-              onClick={() => {
-                onSelectConversation(friend);
-              }}
-            >
-              <ListItemAvatar>
-                <Avatar src={friend.profile}>
-                  <FolderIcon />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={friend.name}
-                secondary={true ? "Secondary text" : null}
-              />
-            </ListItemButton>
-          ))}
+          {friends.length
+            ? friends.map((friend) => (
+                <ListItemButton
+                  selected={selectedFriend?.id === friend.id}
+                  key={friend.id}
+                  onClick={() => {
+                    onSelectConversation(friend);
+                  }}
+                >
+                  <ListItemAvatar>
+                    <Avatar src={friend.profile}>
+                      <FolderIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={friend.name}
+                    secondary={true ? "Secondary text" : null}
+                  />
+                </ListItemButton>
+              ))
+            : "Aun no tienes amigos."}
         </List>
       </div>
     </Grid>

@@ -4,6 +4,7 @@ import CustomAppBar from "./components/CustomAppBar";
 import ContainerWithDrawer from "./layouts/ContainerWithDrawer";
 import ChatScreen from "./pages/ChatScreen";
 import FriendsSearch from "./pages/Friends";
+import Invitations from "./pages/Invitations";
 import Home from "./pages/Home";
 import { useIsLoggedIn } from "./providers/Authentication";
 
@@ -11,6 +12,7 @@ const titlesFromPath = {
   "/home": "Serverless Chat",
   "/friends": "Amigos",
   "/chats": "Conversaciones",
+  "/invitations": "Invitaciones",
 };
 
 export default function Router(props) {
@@ -48,6 +50,10 @@ export default function Router(props) {
         {
           path: "chats",
           element: <ChatScreen />,
+        },
+        {
+          path: "invitations",
+          element: <Invitations />,
         },
       ],
     },

@@ -39,6 +39,11 @@ const loggedInScreensList = [
     screen: "/chats",
     Icon: ChatIcon,
   },
+  {
+    name: "Invitaciones",
+    screen: "/invitations",
+    Icon: GroupIcon,
+  }
 ];
 
 const TemporaryDrawer = ({ isOpened, setIsOpened }) => {
