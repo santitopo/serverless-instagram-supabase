@@ -8,13 +8,6 @@ import { useIsLoggedIn } from "./providers/Authentication";
 import VerifyEmail from "./pages/VerifyEmail";
 import { useIsEmailVerified } from "./providers/Authentication";
 
-const titlesFromPath = {
-  "/home": "Serverless Chat",
-  "/friends": "Amigos",
-  "/chats": "Conversaciones",
-  "/invitations": "Invitaciones",
-};
-
 export default function Router(props) {
   const isLoggedIn = useIsLoggedIn();
   const isEmailVerified = useIsEmailVerified();

@@ -25,20 +25,13 @@ import UserController from "../firebase/controllers/users";
 import MessagesController from "../firebase/controllers/messages";
 import { useSelector } from "react-redux";
 
-
 const sendFriendRequest = async (email, user) => {
-  const users = await getDocsToArray("users");
   const friendRequest = {
     from: user.email,
     to: email,
     status: "pending",
   };
-  if (users.find((user) => user.email === email)) {
-    alert(`Se le ha enviado una solicitud de amistad a ${email}`);
-  } else {
-    alert(`Se le ha enviado una solicitud al mail de ${email}`);
-  }
-
+  alert(`Se le ha enviado una solicitud de amistad a ${email}`);
   await addDocToCollection("friendRequests", friendRequest);
 };
 
@@ -90,7 +83,10 @@ const AddFriend = () => {
       </Grid>
       <Grid alignSelf={"center"} item xs={2}>
         <Button
-          onClick={() => sendFriendRequest(email, user) && setEmail("")}
+          onClick={() => {
+            sendFriendRequest(email, user);
+            setEmail("");
+          }}
           variant="contained"
           endIcon={<SendIcon />}
         >
@@ -101,27 +97,26 @@ const AddFriend = () => {
   );
 };
 
-
 const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
-const user = useSelector(selectUser);
-  const [friends, setFriends] = useState([]);
+  // const user = useSelector(selectUser);
+  //   const [friends, setFriends] = useState([]);
 
-  useEffect(() => {
-    const getFriendsFromFirebase = async () => {
-      const friends = await getFriends(user);
-      setFriends(friends);
-    };
-    getFriendsFromFirebase();
-  }, [user]);
+  //   useEffect(() => {
+  //     const getFriendsFromFirebase = async () => {
+  //       const friends = await getFriends(user);
+  //       setFriends(friends);
+  //     };
+  //     getFriendsFromFirebase();
+  //   }, [user]);
   return (
     <Grid item xs={12}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
         Amigos
       </Typography>
       <div id="list-container">
-        {friends && friends?.length > 0 ? (
+        {friendList && friendList?.length > 0 ? (
           <List dense={false}>
-            {friends.map((friend) => (
+            {friendList.map((friend) => (
               <ListItemButton
                 selected={selectedFriend?.uid === friend.id}
                 key={friend.id}
@@ -134,10 +129,7 @@ const user = useSelector(selectUser);
                     <FolderIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText
-                  primary={friend.name}
-                  secondary={friend.email}
-                />
+                <ListItemText primary={friend.name} secondary={friend.email} />
               </ListItemButton>
             ))}
           </List>
@@ -149,7 +141,7 @@ const user = useSelector(selectUser);
               justifyContent: "center",
             }}
           >
-            <CircularProgress />
+            <Typography>{"No tienes ningún amigo aún"}</Typography>
           </Box>
         )}
       </div>

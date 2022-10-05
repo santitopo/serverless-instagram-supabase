@@ -10,20 +10,30 @@ import FolderIcon from "@mui/icons-material/Folder";
 import { Button, ListItemButton } from "@mui/material";
 import { getDocsToArray } from "../firebase/utils/getDocsToArray";
 import { deleteDocOnCollection } from "../firebase/utils/deleteDocOnCollection";
-import { setDocInCollection } from "../firebase/utils/setDocInCollection";
 import { selectUser } from "../redux/auth";
 import { useSelector } from "react-redux";
-import {
-    Box,
-    CircularProgress
-  } from "@mui/material";
+import { Box } from "@mui/material";
+import UserController from "../firebase/controllers/users";
 const defaultProfile =
   "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
 
 const acceptFriendRequest = async (friendRequest) => {
-  await setDocInCollection("friendRequests", friendRequest.id, {
-    status: "accepted",
-  });
+  console.log("entering acceptFriendRequest", friendRequest);
+  try {
+    //1. Add friend to friend list in both users
+    //2. create conversation between both users
+    //3. Remove friendRequest
+    // await setDocInCollection(
+    //   "friendRequests",
+    //   {
+    //     ...friendRequest,
+    //     status: "accepted",
+    //   },
+    //   friendRequest.id
+    // );
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const rejectFriendRequest = async (friendRequest) => {
@@ -32,15 +42,16 @@ const rejectFriendRequest = async (friendRequest) => {
 
 const getPendingFriendRequests = async (user) => {
   const friendRequests = await getDocsToArray("friendRequests");
-  return friendRequests.filter(
+  return friendRequests?.filter(
     (friendRequest) =>
-      friendRequest.to === user.email && friendRequest.status === "pending"
+      friendRequest?.to === user?.email && friendRequest?.status === "pending"
   );
 };
 
 const getUserFromPendingFriendRequest = async (friendRequest) => {
-  const users = await getDocsToArray("users");
-  return users.find((user) => user.email === friendRequest.from);
+  const user = await UserController.getUserFromEmail(friendRequest?.to);
+  console.log("found user", user);
+  return user;
 };
 
 const FriendRequestsList = ({ user }) => {
@@ -49,6 +60,7 @@ const FriendRequestsList = ({ user }) => {
   useEffect(() => {
     const getFriendRequests = async () => {
       const friendRequests = await getPendingFriendRequests(user);
+      console.log(friendRequests);
       const users = await Promise.all(
         friendRequests.map((friendRequest) =>
           getUserFromPendingFriendRequest(friendRequest)
@@ -65,29 +77,32 @@ const FriendRequestsList = ({ user }) => {
     getFriendRequests();
   }, [user]);
 
-  useEffect(() => {
-    if (friendRequests.length > 0) {
-      const interval = setInterval(() => {
-        const getFriendRequests = async () => {
-          const friendRequests = await getPendingFriendRequests(user);
-          const users = await Promise.all(
-            friendRequests.map((friendRequest) =>
-              getUserFromPendingFriendRequest(friendRequest)
-            )
-          );
-          const friendRequestsWithUsers = friendRequests.map(
-            (friendRequest, index) => ({
-              ...friendRequest,
-              user: users[index],
-            })
-          );
-          setFriendRequests(friendRequestsWithUsers);
-        };
-        getFriendRequests();
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [friendRequests, user]);
+  // useEffect(() => {
+  //   let interval;
+  //   if (friendRequests.length > 0) {
+  //     interval = setInterval(() => {
+  //       const getFriendRequests = async () => {
+  //         const friendRequests = await getPendingFriendRequests(user);
+  //         const users = await Promise.all(
+  //           friendRequests.map((friendRequest) =>
+  //             getUserFromPendingFriendRequest(friendRequest)
+  //           )
+  //         );
+  //         const friendRequestsWithUsers = friendRequests.map(
+  //           (friendRequest, index) => ({
+  //             ...friendRequest,
+  //             user: users[index],
+  //           })
+  //         );
+  //         setFriendRequests(friendRequestsWithUsers);
+  //       };
+  //       getFriendRequests();
+  //     }, 5000);
+  //     return () => {
+  //       interval && clearInterval(interval);
+  //     };
+  //   }
+  // }, [friendRequests, user]);
 
   return (
     <Grid item xs={12}>
@@ -119,12 +134,14 @@ const FriendRequestsList = ({ user }) => {
                 <Button
                   variant="contained"
                   color="success"
-                  onClick={() =>
-                    acceptFriendRequest(friendRequest) &&
-                    setFriendRequests(
-                      friendRequests.filter((fr) => fr.id !== friendRequest.id)
-                    )
-                  }
+                  onClick={() => {
+                    acceptFriendRequest(friendRequest);
+                    setFriendRequests((prefriendRequests) =>
+                      prefriendRequests?.filter(
+                        (fr) => fr.id !== friendRequest.id
+                      )
+                    );
+                  }}
                 >
                   Aceptar
                 </Button>
@@ -151,7 +168,7 @@ const FriendRequestsList = ({ user }) => {
               justifyContent: "center",
             }}
           >
-            <CircularProgress />
+            <Typography>No hay Invitaciones</Typography>
           </Box>
         )}
       </div>
