@@ -1,5 +1,5 @@
 import "./Friends.css";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import List from "@mui/material/List";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
@@ -7,25 +7,61 @@ import Avatar from "@mui/material/Avatar";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FolderIcon from "@mui/icons-material/Folder";
-
 import SendIcon from "@mui/icons-material/Send";
 import {
   Box,
   Button,
-  CircularProgress,
   ListItemButton,
   TextField,
+  useTheme,
 } from "@mui/material";
 import ChatView from "../components/ChatView";
+
+import { addDocToCollection } from "../firebase/utils/addDocToCollection";
+import { selectUser } from "../redux/auth";
+
 import UserController from "../firebase/controllers/users";
 import MessagesController from "../firebase/controllers/messages";
 import { useSelector } from "react-redux";
-import { selectUser } from "../redux/auth";
+import Invitations from "./Invitations";
 
-const defaultProfile =
-  "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
+const sendFriendRequest = async (email, user) => {
+  const friendRequest = {
+    from: user.email,
+    to: email,
+  };
+  alert(`Se le ha enviado una solicitud de amistad a ${email}`);
+  await addDocToCollection("friendRequests", friendRequest);
+};
 
-const AddFriend = () => {
+const AddFriend = ({ friendList }) => {
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState(null);
+  const loggedInUser = useSelector(selectUser);
+  const theme = useTheme();
+
+  function isValidEmail(email) {
+    return /\S+@\S+\.\S+/.test(email);
+  }
+
+  const handleSubmit = async () => {
+    try {
+      if (!isValidEmail(email)) {
+        return setError("Email es invalido!");
+      }
+      const foundFriend = friendList?.find((friend) => friend.email === email);
+      if (foundFriend) {
+        return setError("Ya eres amigo de este usuario!");
+      }
+      await sendFriendRequest(email, loggedInUser);
+      setEmail("");
+      setError(null);
+    } catch (e) {
+      console.log(e?.message);
+      setError("Error enviando solicitud de amistad");
+    }
+  };
+
   return (
     <Grid container spacing={2} item xs={12}>
       <Grid item xs={12}>
@@ -36,17 +72,77 @@ const AddFriend = () => {
       <Grid alignSelf={"center"} item xs={8}>
         <TextField
           fullWidth
+          error={!!error}
           label="Dirección de Email"
           InputProps={{
             type: "search",
           }}
+          value={email}
+          onChange={(event) => {
+            setError(null);
+            setEmail(event.target.value);
+          }}
         />
+        {error && (
+          <Typography color={theme.palette.error.main}>{error}</Typography>
+        )}
       </Grid>
       <Grid alignSelf={"center"} item xs={2}>
-        <Button variant="contained" endIcon={<SendIcon />}>
+        <Button
+          onClick={handleSubmit}
+          disabled={!email || email === ""}
+          variant="contained"
+          endIcon={<SendIcon />}
+        >
           Enviar
         </Button>
       </Grid>
+    </Grid>
+  );
+};
+
+const ReceivedInvitationList = ({
+  selectedFriend,
+  onSelectFriend,
+  friendList,
+}) => {
+  return (
+    <Grid item xs={12}>
+      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+        Solicitudes Recibidas
+      </Typography>
+      <div id="list-container">
+        {friendList && friendList?.length > 0 ? (
+          <List dense={false}>
+            {friendList.map((friend) => (
+              <ListItemButton
+                selected={selectedFriend?.uid === friend.id}
+                key={friend.id}
+                onClick={() => {
+                  onSelectFriend(friend);
+                }}
+              >
+                <ListItemAvatar>
+                  <Avatar src={friend.profilePicture}>
+                    <FolderIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary={friend.name} secondary={friend.email} />
+              </ListItemButton>
+            ))}
+          </List>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              margin: 5,
+              justifyContent: "center",
+            }}
+          >
+            <Typography>{"No tienes ningún amigo aún"}</Typography>
+          </Box>
+        )}
+      </div>
     </Grid>
   );
 };
@@ -69,14 +165,11 @@ const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
                 }}
               >
                 <ListItemAvatar>
-                  <Avatar src={defaultProfile}>
+                  <Avatar src={friend.profilePicture}>
                     <FolderIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText
-                  primary={friend.name}
-                  secondary={true ? "Secondary text" : null}
-                />
+                <ListItemText primary={friend.name} secondary={friend.email} />
               </ListItemButton>
             ))}
           </List>
@@ -88,7 +181,7 @@ const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
               justifyContent: "center",
             }}
           >
-            <CircularProgress />
+            <Typography>{"No tienes ningún amigo aún"}</Typography>
           </Box>
         )}
       </div>
@@ -113,12 +206,13 @@ const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
 
   return (
     <Grid container item xs={6}>
-      <AddFriend />
+      <AddFriend friendList={friendList} />
       <FriendList
         friendList={friendList}
         selectedFriend={selectedFriend}
         onSelectFriend={onSelectFriend}
       />
+      <Invitations />
     </Grid>
   );
 };

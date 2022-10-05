@@ -2,16 +2,21 @@ import React from "react";
 
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import MenuIcon from "@mui/icons-material/Menu";
 import { getAuth, signOut } from "firebase/auth";
 
-import { Button, IconButton, Typography, useTheme } from "@mui/material";
-import { useIsLoggedIn } from "../providers/Authentication";
+import { Button, Typography, useTheme } from "@mui/material";
+import { useIsEmailVerified, useIsLoggedIn } from "../providers/Authentication";
+import { useSelector } from "react-redux";
+import { selectUser } from "../redux/auth";
 
 const CustomAppBar = ({ title }) => {
   const auth = getAuth();
   const theme = useTheme();
   const isLoggedIn = useIsLoggedIn();
+  const loggedInUser = useSelector(selectUser);
+
+  const isEmailVerified = useIsEmailVerified();
+  console.log("logged in user is", loggedInUser);
 
   return (
     <AppBar
@@ -34,6 +39,21 @@ const CustomAppBar = ({ title }) => {
         >
           {title}
         </Typography>
+
+        {isLoggedIn && (
+          <Typography
+            color={theme.palette.background}
+            component="h1"
+            variant="h6"
+            sx={{ mr: 1 }}
+            noWrap
+          >
+            {loggedInUser?.displayName
+              ? `Bienvenido, ${loggedInUser?.displayName}`
+              : "Bienvenido!"}
+          </Typography>
+        )}
+
         {isLoggedIn && (
           <Button
             style={{ backgroundColor: "white" }}

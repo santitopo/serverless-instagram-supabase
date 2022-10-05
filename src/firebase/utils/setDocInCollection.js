@@ -1,6 +1,6 @@
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 
-const setDocInCollection = async (collectionName, document, uid) => {
+export const setDocInCollection = async (collectionName, document, uid) => {
   const db = getFirestore();
 
   try {

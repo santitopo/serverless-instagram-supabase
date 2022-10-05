@@ -2,10 +2,12 @@ import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import CustomAppBar from "./components/CustomAppBar";
 import FriendsSearch from "./pages/Friends";
 import Home from "./pages/Home";
-import VerifyEmail from "./pages/VerifyEmail";
-import { useIsEmailVerified, useIsLoggedIn } from "./providers/Authentication";
+import { useIsLoggedIn } from "./providers/Authentication";
 
-export default function Router(props) {
+import VerifyEmail from "./pages/VerifyEmail";
+import { useIsEmailVerified } from "./providers/Authentication";
+
+export default function Router() {
   const isLoggedIn = useIsLoggedIn();
   const isEmailVerified = useIsEmailVerified();
 
