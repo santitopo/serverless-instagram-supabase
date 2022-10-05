@@ -1,14 +1,13 @@
 import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import CustomAppBar from "./components/CustomAppBar";
 import FriendsSearch from "./pages/Friends";
-import Invitations from "./pages/Invitations";
 import Home from "./pages/Home";
 import { useIsLoggedIn } from "./providers/Authentication";
 
 import VerifyEmail from "./pages/VerifyEmail";
 import { useIsEmailVerified } from "./providers/Authentication";
 
-export default function Router(props) {
+export default function Router() {
   const isLoggedIn = useIsLoggedIn();
   const isEmailVerified = useIsEmailVerified();
 
@@ -43,10 +42,6 @@ export default function Router(props) {
           ) : (
             <Home />
           ),
-        },
-        {
-          path: "invitations",
-          element: <Invitations />,
         },
       ],
     },

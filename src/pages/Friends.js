@@ -23,6 +23,7 @@ import { selectUser } from "../redux/auth";
 import UserController from "../firebase/controllers/users";
 import MessagesController from "../firebase/controllers/messages";
 import { useSelector } from "react-redux";
+import Invitations from "./Invitations";
 
 const sendFriendRequest = async (email, user) => {
   const friendRequest = {
@@ -100,6 +101,52 @@ const AddFriend = ({ friendList }) => {
   );
 };
 
+const ReceivedInvitationList = ({
+  selectedFriend,
+  onSelectFriend,
+  friendList,
+}) => {
+  return (
+    <Grid item xs={12}>
+      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+        Solicitudes Recibidas
+      </Typography>
+      <div id="list-container">
+        {friendList && friendList?.length > 0 ? (
+          <List dense={false}>
+            {friendList.map((friend) => (
+              <ListItemButton
+                selected={selectedFriend?.uid === friend.id}
+                key={friend.id}
+                onClick={() => {
+                  onSelectFriend(friend);
+                }}
+              >
+                <ListItemAvatar>
+                  <Avatar src={friend.profilePicture}>
+                    <FolderIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary={friend.name} secondary={friend.email} />
+              </ListItemButton>
+            ))}
+          </List>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              margin: 5,
+              justifyContent: "center",
+            }}
+          >
+            <Typography>{"No tienes ningún amigo aún"}</Typography>
+          </Box>
+        )}
+      </div>
+    </Grid>
+  );
+};
+
 const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
   return (
     <Grid item xs={12}>
@@ -165,6 +212,7 @@ const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
         selectedFriend={selectedFriend}
         onSelectFriend={onSelectFriend}
       />
+      <Invitations />
     </Grid>
   );
 };

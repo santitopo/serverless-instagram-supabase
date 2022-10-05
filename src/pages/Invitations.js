@@ -79,8 +79,8 @@ const FriendRequestsList = ({ loggedInUser }) => {
 
   return (
     <Grid item xs={12}>
-      <Typography sx={{ mt: 6, mb: 2 }} variant="h5" component="div">
-        Invitaciones
+      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+        Invitaciones Recibidas
       </Typography>
       <div id="list-container">
         {friendRequests && friendRequests.length > 0 ? (
@@ -107,6 +107,7 @@ const FriendRequestsList = ({ loggedInUser }) => {
                 <Button
                   variant="contained"
                   color="success"
+                  sx={{ mr: 1 }}
                   onClick={() => {
                     acceptFriendRequest(loggedInUser, friendRequest);
                     setFriendRequests((prefriendRequests) =>
@@ -121,12 +122,14 @@ const FriendRequestsList = ({ loggedInUser }) => {
                 <Button
                   variant="contained"
                   color="error"
-                  onClick={() =>
-                    rejectFriendRequest(friendRequest) &&
-                    setFriendRequests(
-                      friendRequests.filter((fr) => fr.id !== friendRequest.id)
-                    )
-                  }
+                  onClick={() => {
+                    rejectFriendRequest(friendRequest);
+                    setFriendRequests((prefriendRequests) =>
+                      prefriendRequests?.filter(
+                        (fr) => fr.id !== friendRequest.id
+                      )
+                    );
+                  }}
                 >
                   Rechazar
                 </Button>
@@ -141,7 +144,7 @@ const FriendRequestsList = ({ loggedInUser }) => {
               justifyContent: "center",
             }}
           >
-            <Typography>No hay Invitaciones</Typography>
+            <Typography>{"No hay nuevas invitaciones"}</Typography>
           </Box>
         )}
       </div>
@@ -151,9 +154,5 @@ const FriendRequestsList = ({ loggedInUser }) => {
 
 export default function Invitations() {
   const loggedInUser = useSelector(selectUser);
-  return (
-    <div className="friendRequests">
-      <FriendRequestsList loggedInUser={loggedInUser} />
-    </div>
-  );
+  return <FriendRequestsList loggedInUser={loggedInUser} />;
 }
