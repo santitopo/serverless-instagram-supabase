@@ -12,14 +12,8 @@ import { Button, ListItemButton, TextField } from "@mui/material";
 import ChatView from "../components/ChatView";
 import { addDocToCollection } from "../firebase/utils/addDocToCollection";
 import { getDocsToArray } from "../firebase/utils/getDocsToArray";
-import { deleteDocOnCollection } from "../firebase/utils/deleteDocOnCollection";
-import { updateDocOnCollection } from "../firebase/utils/updateDocOnCollection";
 import { selectUser } from "../redux/auth";
 import { useSelector } from "react-redux";
-
-const defaultProfile =
-  "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
-
 
 const sendFriendRequest = async (email, user) => {
   const users = await getDocsToArray("users");
@@ -49,7 +43,7 @@ const getFriends = async (user) => {
   );
   return friends.map((friend) => {
     const friendUser = users.find(
-      (user) => user.email === friend.to || user.email === friend.from
+      (user) => user.email === friend.from || user.email === friend.to
     );
     if (friendUser) {
       return {
@@ -60,25 +54,6 @@ const getFriends = async (user) => {
       };
     }
   });
-};
-
-const acceptFriendRequest = async (friendRequest) => {
-  await updateDocOnCollection("friendRequests", friendRequest.id, {
-    status: "accepted",
-  });
-};
-
-const rejectFriendRequest = async (friendRequest) => {
-  await deleteDocOnCollection("friendRequests", friendRequest.id);
-};
-
-const getPendingFriendRequests = async (user) => {
-  const friendRequests = await getDocsToArray("friendRequests");
-  return friendRequests.filter(
-    (friendRequest) =>
-      (friendRequest.to === user.email && friendRequest.status === "pending") ||
-      (friendRequest.from === user.email && friendRequest.status === "pending")
-  );
 };
 
 const AddFriend = () => {
