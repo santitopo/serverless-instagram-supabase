@@ -29,13 +29,20 @@ import FileUploader from "../components/FileUploader";
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
-const onGoogleSignIn = async (auth) => {
-  return signInWithPopup(auth, googleProvider);
-};
-
-const onFacebookSignIn = async (auth) => {
-  return signInWithPopup(auth, facebookProvider);
-};
+const SSOSignIn = async (provider) => {
+  const auth = getAuth();
+  const userCredential = await signInWithPopup(auth, provider);
+  const fbUser = userCredential.user
+  const user = await UserController.postUser(
+    {
+      name: fbUser.displayName,
+      email: fbUser.email,
+      profilePicture: fbUser.photoURL,
+    },
+    fbUser.uid
+  );
+  console.log("added", user);
+}
 
 const onEmailPasswordSignIn = async (auth, email, password) => {
   return signInWithEmailAndPassword(auth, email, password);
@@ -92,10 +99,9 @@ const SSOProviderButton = ({ color, icon, text, onPress }) => {
 };
 
 const GoogleButton = () => {
-  const auth = getAuth();
   return (
     <SSOProviderButton
-      onPress={() => onGoogleSignIn(auth)}
+      onPress={() => SSOSignIn(googleProvider)}
       color={GOOGLE_RED}
       text={"Continuar con Google"}
       icon={require("../assets/google.png")}
@@ -104,10 +110,9 @@ const GoogleButton = () => {
 };
 
 const FacebookButton = () => {
-  const auth = getAuth();
   return (
     <SSOProviderButton
-      onPress={() => onFacebookSignIn(auth)}
+      onPress={() => SSOSignIn(facebookProvider)}
       color={FACEBOOK_BLUE}
       text={"Continuar con Facebook"}
       icon={require("../assets/facebook.png")}
