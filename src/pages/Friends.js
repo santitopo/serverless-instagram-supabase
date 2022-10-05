@@ -150,7 +150,7 @@ const FriendList = ({ selectedFriend, onSelectConversation }) => {
                   </ListItemAvatar>
                   <ListItemText
                     primary={friend.name}
-                    secondary={true ? "Secondary text" : null}
+                    secondary={friend.email}
                   />
                 </ListItemButton>
               ))
