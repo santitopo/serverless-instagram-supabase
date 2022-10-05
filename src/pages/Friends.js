@@ -8,12 +8,23 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FolderIcon from "@mui/icons-material/Folder";
 import SendIcon from "@mui/icons-material/Send";
-import { Button, ListItemButton, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  ListItemButton,
+  TextField,
+} from "@mui/material";
 import ChatView from "../components/ChatView";
+
 import { addDocToCollection } from "../firebase/utils/addDocToCollection";
 import { getDocsToArray } from "../firebase/utils/getDocsToArray";
 import { selectUser } from "../redux/auth";
+
+import UserController from "../firebase/controllers/users";
+import MessagesController from "../firebase/controllers/messages";
 import { useSelector } from "react-redux";
+
 
 const sendFriendRequest = async (email, user) => {
   const users = await getDocsToArray("users");
@@ -90,8 +101,9 @@ const AddFriend = () => {
   );
 };
 
-const FriendList = ({ selectedFriend, onSelectConversation }) => {
-  const user = useSelector(selectUser);
+
+const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
+const user = useSelector(selectUser);
   const [friends, setFriends] = useState([]);
 
   useEffect(() => {
@@ -101,61 +113,106 @@ const FriendList = ({ selectedFriend, onSelectConversation }) => {
     };
     getFriendsFromFirebase();
   }, [user]);
-
   return (
     <Grid item xs={12}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
         Amigos
       </Typography>
       <div id="list-container">
-        <List dense={false}>
-          {friends.length
-            ? friends.map((friend) => (
-                <ListItemButton
-                  selected={selectedFriend?.id === friend.id}
-                  key={friend.id}
-                  onClick={() => {
-                    onSelectConversation(friend);
-                  }}
-                >
-                  <ListItemAvatar>
-                    <Avatar src={friend.profile}>
-                      <FolderIcon />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={friend.name}
-                    secondary={friend.email}
-                  />
-                </ListItemButton>
-              ))
-            : "Aun no tienes amigos."}
-        </List>
+        {friends && friends?.length > 0 ? (
+          <List dense={false}>
+            {friends.map((friend) => (
+              <ListItemButton
+                selected={selectedFriend?.uid === friend.id}
+                key={friend.id}
+                onClick={() => {
+                  onSelectFriend(friend);
+                }}
+              >
+                <ListItemAvatar>
+                  <Avatar src={friend.profilePicture}>
+                    <FolderIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={friend.name}
+                  secondary={friend.email}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              margin: 5,
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
       </div>
     </Grid>
   );
 };
 
-const LeftContainer = ({ onSelectConversation, selectedFriend }) => {
+const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
+  const [friendList, setFriendList] = useState([]);
+  const loggedInUser = useSelector(selectUser);
+
+  useEffect(() => {
+    if (!loggedInUser) return;
+    const listener = UserController.listenUserFriends(
+      loggedInUser.uid,
+      setFriendList
+    );
+    return () => {
+      listener && listener();
+    };
+  }, [loggedInUser]);
+
   return (
     <Grid container item xs={6}>
       <AddFriend />
       <FriendList
+        friendList={friendList}
         selectedFriend={selectedFriend}
-        onSelectConversation={onSelectConversation}
+        onSelectFriend={onSelectFriend}
       />
     </Grid>
   );
 };
 
 const Conversation = ({ selectedFriend }) => {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    if (!selectedFriend) {
+      return;
+    }
+
+    const listener = MessagesController.listenConversation(
+      selectedFriend?.conversation_id,
+      setMessages
+    );
+    return () => {
+      console.log("will unsuscribe");
+      listener && listener();
+    };
+  }, [selectedFriend]);
+
   return (
     <Grid item xs={6}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
         {`Conversación con ${selectedFriend.name}`}
       </Typography>
       <div id="conversation-container">
-        <ChatView />
+        <ChatView
+          conversationId={selectedFriend?.conversation_id}
+          messages={messages}
+          friendName={selectedFriend.name}
+        />
       </div>
     </Grid>
   );
@@ -167,7 +224,7 @@ export default function FriendsSearch() {
   return (
     <Grid sx={{ paddingX: 5 }} alignItems={"flex-start"} container spacing={2}>
       <LeftContainer
-        onSelectConversation={setSelectedFriend}
+        onSelectFriend={setSelectedFriend}
         selectedFriend={selectedFriend}
       />
       {selectedFriend && <Conversation selectedFriend={selectedFriend} />}

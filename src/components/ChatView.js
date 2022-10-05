@@ -1,41 +1,26 @@
-import { Button, Grid, TextField, Typography } from "@mui/material";
-import React from "react";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useEffect, useState, useRef } from "react";
 import SendIcon from "@mui/icons-material/Send";
-
-const fakeConversation = [
-  {
-    body: "Mensaje de muestra",
-    sentAt: "2020-02-21 14:40",
-    from: "Santiago Topo",
-    selfMessage: false,
-  },
-  {
-    body: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    sentAt: "2020-02-21 14:40",
-    from: "Santiago Topo",
-    selfMessage: true,
-    imageUrl:
-      "https://static.remove.bg/sample-gallery/graphics/bird-thumbnail.jpg",
-  },
-  {
-    body: "Mensaje de muestra",
-    sentAt: "2020-02-21 14:40",
-    from: "Santiago Topo",
-    selfMessage: true,
-  },
-  {
-    body: "Mensaje de muestra",
-    sentAt: "2020-02-21 14:40",
-    from: "Santiago Topo",
-    selfMessage: false,
-  },
-];
+import { useSelector } from "react-redux";
+import { selectUser } from "../redux/auth";
+import { Box } from "@mui/system";
+import MessagesController from "../firebase/controllers/messages";
+import { Timestamp } from "firebase/firestore";
+import FileUploader from "./FileUploader";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { v4 as uuidv4 } from "uuid";
 
 const Message = ({
   selfMessage,
   body = "Conversación",
   from = "Santiago Topo",
-  sentAt = "2020-02-21 14:40",
+  sent_at,
   imageUrl,
 }) => {
   return (
@@ -58,17 +43,19 @@ const Message = ({
       </Typography>
       {imageUrl && (
         <div style={{ textAlign: selfMessage ? "right" : "left" }}>
-          <img
-            alt="Attachment"
-            src={imageUrl}
-            style={{
-              maxWidth: "40%",
-              maxHeight: 200,
-              objectFit: "contain",
-              paddingBottom: 5,
-              paddingTop: 5,
-            }}
-          />
+          <a href={imageUrl} target="_blank" rel="noreferrer">
+            <img
+              alt="Attachment"
+              src={imageUrl}
+              style={{
+                maxWidth: "40%",
+                maxHeight: 200,
+                objectFit: "contain",
+                paddingBottom: 5,
+                paddingTop: 5,
+              }}
+            />
+          </a>
         </div>
       )}
       <Typography
@@ -79,37 +66,99 @@ const Message = ({
           textAlign: selfMessage ? "right" : "left",
         }}
       >
-        {`${selfMessage ? "Tú" : from} : ${sentAt}`}
+        {`${selfMessage ? "Tú" : from} : ${sent_at?.toDate().toLocaleString()}`}
       </Typography>
     </Grid>
   );
 };
 
-const ChatView = () => {
+const onSendMessage = async (conversationId, message, sentBy, selectedFile) => {
+  try {
+    const storage = getStorage();
+
+    let imageUrl = "";
+    if (selectedFile) {
+      const randomId = uuidv4();
+      const imageRef = ref(storage, `messages/${sentBy}/${randomId}.jpg`);
+      await uploadBytes(imageRef, selectedFile);
+      imageUrl = await getDownloadURL(imageRef);
+      console.log("finished uploading picture", imageUrl);
+    }
+    return MessagesController.sendMessage(conversationId, {
+      body: message,
+      sent_by: sentBy,
+      sent_at: Timestamp.now(),
+      imageUrl,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const ChatView = ({ messages, conversationId, friendName }) => {
+  const loggedInUser = useSelector(selectUser);
+  const [message, setMessage] = useState("");
+  const [selectedFile, setSelectedFile] = useState("");
+  const bottomRef = useRef(null);
+
+  const handleMessageSending = () => {
+    console.log("Sending message: ", message);
+    onSendMessage(conversationId, message, loggedInUser.uid, selectedFile);
+    setMessage("");
+    setSelectedFile("");
+  };
+
+  useEffect(() => {
+    messages?.length > 0 &&
+      bottomRef.current?.scrollIntoView({
+        block: "end",
+        inline: "nearest",
+        behavior: "smooth",
+      });
+  }, [messages]);
+
   return (
     <>
-      <Grid
-        alignItems={"flex-end"}
-        container
-        sx={{ height: 500, overflowY: "scroll" }}
-      >
+      <Grid container sx={{ height: 500, overflowY: "scroll" }}>
         <Grid
           style={{
-            //backgroundColor: "red",
             paddingLeft: 10,
             paddingRight: 10,
           }}
           item
-          rowSpacing={2}
           container
           xs={12}
         >
-          {fakeConversation.map((message) => (
-            <Message
-              key={`${message.body}-${message.sentAt}-${message.from}`}
-              {...message}
-            />
-          ))}
+          {messages ? (
+            <Box ref={bottomRef} style={{ width: "100%" }}>
+              {messages.length > 0 ? (
+                messages.map((message) => (
+                  <Message
+                    key={`${message.body}-${message.sentAt}-${message.from}`}
+                    selfMessage={message.sent_by === loggedInUser.uid}
+                    {...message}
+                  />
+                ))
+              ) : (
+                <Typography
+                  align="center"
+                  variant="h8"
+                  style={{ textAlign: "center" }}
+                  color={"gray"}
+                >{`Aún no tienes mensajes con ${friendName}!`}</Typography>
+              )}
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                margin: 5,
+                justifyContent: "center",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
         </Grid>
       </Grid>
       <Grid container alignItems={"center"} spacing={2} sx={{ padding: 1 }}>
@@ -119,12 +168,27 @@ const ChatView = () => {
             fullWidth
             label="Escriba su mensaje"
             variant="outlined"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           />
         </Grid>
         <Grid item xs={2} alignSelf={"center"}>
-          <Button variant="contained" endIcon={<SendIcon />}>
+          <Button
+            onClick={handleMessageSending}
+            disabled={!message}
+            variant="contained"
+            endIcon={<SendIcon />}
+          >
             Enviar
           </Button>
+          <div id="text-field-container">
+            <FileUploader
+              text={"Adjuntar"}
+              onFileSelectSuccess={(file) => setSelectedFile(file)}
+              onFileSelectError={({ error }) => alert(error)}
+              selectedFileName={selectedFile?.name}
+            />
+          </div>
         </Grid>
       </Grid>
     </>

@@ -11,9 +11,11 @@ import React, { useRef, useState } from "react";
 import {
   signInWithPopup,
   GoogleAuthProvider,
+  FacebookAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   getAuth,
+  sendEmailVerification,
 } from "firebase/auth";
 
 import UserController from "../firebase/controllers/users";
@@ -22,11 +24,17 @@ import { selectUser } from "../redux/auth";
 import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import FileUploader from "../components/FileUploader";
 
-const provider = new GoogleAuthProvider();
+const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
 
 const onGoogleSignIn = async (auth) => {
-  return signInWithPopup(auth, provider);
+  return signInWithPopup(auth, googleProvider);
+};
+
+const onFacebookSignIn = async (auth) => {
+  return signInWithPopup(auth, facebookProvider);
 };
 
 const onEmailPasswordSignIn = async (auth, email, password) => {
@@ -51,11 +59,15 @@ const onEmailPasswordSignUp = async (
       await uploadBytes(imageRef, profilePicture);
       const url = await getDownloadURL(imageRef);
       // Register user in firestore
-      const user = await UserController.postUser({
-        name,
-        email,
-        profilePicture: url,
-      });
+      const user = await UserController.postUser(
+        {
+          name,
+          email,
+          profilePicture: url,
+        },
+        fbUser.uid
+      );
+      sendEmailVerification(userCredential.user);
       console.log("added", user);
     }
   );
@@ -92,8 +104,10 @@ const GoogleButton = () => {
 };
 
 const FacebookButton = () => {
+  const auth = getAuth();
   return (
     <SSOProviderButton
+      onPress={() => onFacebookSignIn(auth)}
       color={FACEBOOK_BLUE}
       text={"Continuar con Facebook"}
       icon={require("../assets/facebook.png")}
@@ -198,42 +212,6 @@ const AuthButtons = ({ goToRegistration }) => {
   );
 };
 
-const FileUploader = ({
-  onFileSelectError,
-  onFileSelectSuccess,
-  selectedFileName,
-}) => {
-  const fileInput = useRef(null);
-
-  const handleFileInput = (e) => {
-    const file = e.target.files[0];
-    if (file.size > 2200000) {
-      onFileSelectError({ error: "File size cannot exceed more than 1MB" });
-    } else onFileSelectSuccess(file);
-  };
-
-  return (
-    <div className="file-uploader">
-      <input
-        accept="image/*"
-        hidden
-        ref={fileInput}
-        type="file"
-        onChange={handleFileInput}
-      />
-      <Button
-        variant="contained"
-        component="label"
-        onClick={(e) => fileInput.current && fileInput.current.click()}
-        className="btn btn-primary"
-      >
-        Seleccionar Foto
-      </Button>
-      <Typography>{selectedFileName}</Typography>
-    </div>
-  );
-};
-
 const RegistrationForm = ({ backToLogin }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -289,6 +267,7 @@ const RegistrationForm = ({ backToLogin }) => {
       </div>
       <div id="text-field-container">
         <FileUploader
+          text={"Seleccionar Foto"}
           onFileSelectSuccess={(file) => setSelectedFile(file)}
           onFileSelectError={({ error }) => alert(error)}
           selectedFileName={selectedFile?.name}

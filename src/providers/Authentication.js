@@ -14,13 +14,13 @@ const Authentication = ({ children }) => {
     }
     const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
       if (fbUser) {
-        console.log({ fbUser });
         dispatch(
           authenticated({
             displayName: fbUser?.displayName,
             email: fbUser?.email,
             emailVerified: fbUser?.emailVerified,
             photoURL: fbUser?.photoURL,
+            uid: fbUser?.uid,
           })
         );
       } else {
@@ -38,6 +38,12 @@ const Authentication = ({ children }) => {
 export const useIsLoggedIn = () => {
   const user = useSelector(selectUser);
   return !!user;
+};
+
+export const useIsEmailVerified = () => {
+  const user = useSelector(selectUser);
+
+  return user && user.emailVerified;
 };
 
 export default Authentication;
