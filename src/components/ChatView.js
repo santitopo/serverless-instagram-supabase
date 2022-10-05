@@ -134,8 +134,11 @@ const ChatView = ({ messages, conversationId, friendName }) => {
               {messages.length > 0 ? (
                 messages.map((message) => (
                   <Message
-                    key={`${message.body}-${message.sentAt}-${message.from}`}
+                    key={`${message.body}-${message.sent_at}-${message.sent_by}`}
                     selfMessage={message.sent_by === loggedInUser.uid}
+                    from={
+                      message.sent_by === loggedInUser.uid ? null : friendName
+                    }
                     {...message}
                   />
                 ))
