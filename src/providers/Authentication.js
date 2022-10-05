@@ -19,10 +19,12 @@ const Authentication = ({ children }) => {
             displayName: fbUser?.displayName,
             email: fbUser?.email,
             emailVerified: fbUser?.emailVerified,
+            SSOProviderId: fbUser?.providerData[0].providerId,
             photoURL: fbUser?.photoURL,
             uid: fbUser?.uid,
           })
         );
+        console.log(fbUser)
       } else {
         console.log("cleared auth");
         dispatch(authCleared());
@@ -43,7 +45,7 @@ export const useIsLoggedIn = () => {
 export const useIsEmailVerified = () => {
   const user = useSelector(selectUser);
 
-  return user && user.emailVerified;
+  return user && (user.emailVerified || (user.SSOProviderId === "facebook.com")) ;
 };
 
 export default Authentication;
