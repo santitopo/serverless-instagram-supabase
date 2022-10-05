@@ -16,6 +16,14 @@ class MessagesController {
       messageData
     );
   }
+
+  async createConversation(user1Id, user2Id) {
+    const conversation = await addDocToCollection("conversations", {
+      user_1_id: user1Id,
+      user_2_id: user2Id,
+    });
+    return conversation;
+  }
 }
 
 export default new MessagesController();

@@ -8,13 +8,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FolderIcon from "@mui/icons-material/Folder";
 import SendIcon from "@mui/icons-material/Send";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  ListItemButton,
-  TextField,
-} from "@mui/material";
+import { Box, Button, ListItemButton, TextField } from "@mui/material";
 import ChatView from "../components/ChatView";
 
 import { addDocToCollection } from "../firebase/utils/addDocToCollection";
@@ -98,16 +92,6 @@ const AddFriend = () => {
 };
 
 const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
-  // const user = useSelector(selectUser);
-  //   const [friends, setFriends] = useState([]);
-
-  //   useEffect(() => {
-  //     const getFriendsFromFirebase = async () => {
-  //       const friends = await getFriends(user);
-  //       setFriends(friends);
-  //     };
-  //     getFriendsFromFirebase();
-  //   }, [user]);
   return (
     <Grid item xs={12}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">

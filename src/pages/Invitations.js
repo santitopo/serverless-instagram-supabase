@@ -14,23 +14,25 @@ import { selectUser } from "../redux/auth";
 import { useSelector } from "react-redux";
 import { Box } from "@mui/material";
 import UserController from "../firebase/controllers/users";
+import MessageController from "../firebase/controllers/messages";
 const defaultProfile =
   "https://previews.123rf.com/images/yupiramos/yupiramos1705/yupiramos170514531/77987158-dise%C3%B1o-gr%C3%A1fico-del-ejemplo-del-vector-del-icono-del-perfil-del-hombre-joven.jpg";
 
-const acceptFriendRequest = async (friendRequest) => {
-  console.log("entering acceptFriendRequest", friendRequest);
+const acceptFriendRequest = async (loggedInUser, friendRequest) => {
   try {
-    //1. Add friend to friend list in both users
-    //2. create conversation between both users
+    //1. create conversation between both users
+    const conversation = await MessageController.createConversation(
+      loggedInUser.uid,
+      friendRequest?.user?.id
+    );
+    //2. Add friend to friend list in both users
+    await UserController.addFriends(
+      conversation.id,
+      loggedInUser?.uid,
+      friendRequest?.user?.id
+    );
     //3. Remove friendRequest
-    // await setDocInCollection(
-    //   "friendRequests",
-    //   {
-    //     ...friendRequest,
-    //     status: "accepted",
-    //   },
-    //   friendRequest.id
-    // );
+    await deleteDocOnCollection("friendRequests", friendRequest.id);
   } catch (e) {
     console.log(e);
   }
@@ -49,17 +51,17 @@ const getPendingFriendRequests = async (user) => {
 };
 
 const getUserFromPendingFriendRequest = async (friendRequest) => {
-  const user = await UserController.getUserFromEmail(friendRequest?.to);
+  const user = await UserController.getUserFromEmail(friendRequest?.from);
   console.log("found user", user);
   return user;
 };
 
-const FriendRequestsList = ({ user }) => {
+const FriendRequestsList = ({ loggedInUser }) => {
   const [friendRequests, setFriendRequests] = useState([]);
 
   useEffect(() => {
     const getFriendRequests = async () => {
-      const friendRequests = await getPendingFriendRequests(user);
+      const friendRequests = await getPendingFriendRequests(loggedInUser);
       console.log(friendRequests);
       const users = await Promise.all(
         friendRequests.map((friendRequest) =>
@@ -75,34 +77,7 @@ const FriendRequestsList = ({ user }) => {
       setFriendRequests(friendRequestsWithUsers);
     };
     getFriendRequests();
-  }, [user]);
-
-  // useEffect(() => {
-  //   let interval;
-  //   if (friendRequests.length > 0) {
-  //     interval = setInterval(() => {
-  //       const getFriendRequests = async () => {
-  //         const friendRequests = await getPendingFriendRequests(user);
-  //         const users = await Promise.all(
-  //           friendRequests.map((friendRequest) =>
-  //             getUserFromPendingFriendRequest(friendRequest)
-  //           )
-  //         );
-  //         const friendRequestsWithUsers = friendRequests.map(
-  //           (friendRequest, index) => ({
-  //             ...friendRequest,
-  //             user: users[index],
-  //           })
-  //         );
-  //         setFriendRequests(friendRequestsWithUsers);
-  //       };
-  //       getFriendRequests();
-  //     }, 5000);
-  //     return () => {
-  //       interval && clearInterval(interval);
-  //     };
-  //   }
-  // }, [friendRequests, user]);
+  }, [loggedInUser]);
 
   return (
     <Grid item xs={12}>
@@ -135,7 +110,7 @@ const FriendRequestsList = ({ user }) => {
                   variant="contained"
                   color="success"
                   onClick={() => {
-                    acceptFriendRequest(friendRequest);
+                    acceptFriendRequest(loggedInUser, friendRequest);
                     setFriendRequests((prefriendRequests) =>
                       prefriendRequests?.filter(
                         (fr) => fr.id !== friendRequest.id
@@ -177,10 +152,10 @@ const FriendRequestsList = ({ user }) => {
 };
 
 export default function Invitations() {
-  const user = useSelector(selectUser);
+  const loggedInUser = useSelector(selectUser);
   return (
     <div className="friendRequests">
-      <FriendRequestsList user={user} />
+      <FriendRequestsList loggedInUser={loggedInUser} />
     </div>
   );
 }
