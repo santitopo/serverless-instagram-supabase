@@ -18,6 +18,8 @@ import {
 import ChatView from "../components/ChatView";
 
 import { addDocToCollection } from "../firebase/utils/addDocToCollection";
+import { getDocFromFirestore } from "../firebase/utils/getDocFromFirestore";
+
 import { selectUser } from "../redux/auth";
 
 import UserController from "../firebase/controllers/users";
@@ -30,6 +32,16 @@ const sendFriendRequest = async (email, user) => {
     from: user.email,
     to: email,
   };
+  const userRegisteredWithEmail =  await getDocFromFirestore("users", email);
+  if (!userRegisteredWithEmail) {
+    const emailToAdd = {
+      to: email,
+      from: user.email,
+      subject: `Invitación de ${user.displayName} a ser amigo`,
+      text: `Hola, ${user.displayName} te ha invitado a ser amigo en la aplicación de chat. Para aceptar la invitación, por favor ingresa a la aplicación y acepta la invitación en el siguiente link: `,
+    }
+    await addDocToCollection("emails", emailToAdd);
+  }
   alert(`Se le ha enviado una solicitud de amistad a ${email}`);
   await addDocToCollection("friendRequests", friendRequest);
 };
