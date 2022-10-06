@@ -37,7 +37,7 @@ service cloud.firestore {
     }
 
     match /users/{userId}/friends/{friendId} {
-      allow create, update: if (friendId == request.auth.uid)
+      allow create, update: if (friendId == request.auth.uid) || myResource(userId)
     }
     
     match /users/{userId}/friends/{friendId} {
@@ -51,6 +51,7 @@ service cloud.firestore {
     match /friendRequests/{requestId} {
       allow read: if true;
       allow create: if isLoggedUser() && request.resource.data.from == request.auth.token.email
+      allow delete : if isLoggedUser() && get(/databases/$(database)/documents/friendRequests/$(requestId)).data.to == request.auth.token.email
     }
   }
 }
