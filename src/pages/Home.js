@@ -8,6 +8,8 @@ import {
   useTheme,
 } from "@mui/material";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   signInWithPopup,
   GoogleAuthProvider,
@@ -62,18 +64,27 @@ const onEmailPasswordSignUp = async (
       const fbUser = userCredential.user;
       // Registered properly
       // Upload picture
-      const imageRef = ref(storage, `profilePictures/${fbUser.uid}.jpg`);
-      await uploadBytes(imageRef, profilePicture);
-      const url = await getDownloadURL(imageRef);
+      console.log("about to upload profile picture");
+      let profilePictureURL = null;
+      try {
+        const imageRef = ref(storage, `profilePictures/${fbUser.uid}.jpg`);
+        await uploadBytes(imageRef, profilePicture);
+        profilePictureURL = await getDownloadURL(imageRef);
+        console.log("success uploading");
+      } catch (e) {
+        console.log("error trying to upload profile picture", e);
+      }
       // Register user in firestore
+      console.log("will register user in firestore");
       const user = await UserController.postUser(
         {
           name,
           email,
-          profilePicture: url,
+          profilePicture: profilePictureURL,
         },
         fbUser.uid
       );
+      console.log("will send email verification to", userCredential.user);
       sendEmailVerification(userCredential.user);
       console.log("added", user);
     }
@@ -192,7 +203,8 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
   );
 };
 
-const AuthButtons = ({ goToRegistration }) => {
+const AuthButtons = () => {
+  const navigate = useNavigate();
   return (
     <>
       <Grid item xs={5}>
@@ -200,7 +212,7 @@ const AuthButtons = ({ goToRegistration }) => {
           <Typography style={{ textAlign: "center", fontSize: 24 }}>
             {"Iniciar Sesión:"}
           </Typography>
-          <EmailPasswordLogin goToRegistration={goToRegistration} />
+          <EmailPasswordLogin goToRegistration={() => navigate("/register")} />
         </div>
       </Grid>
       <Grid xs={12} item />
@@ -314,7 +326,6 @@ const RegistrationForm = ({ backToLogin }) => {
 };
 
 const AuthForms = () => {
-  const [isRegistering, setIsRegistering] = useState(false);
   return (
     <>
       <Grid sx={{ paddingY: 20 }} style={{ height: "80vh" }} container>
@@ -326,11 +337,7 @@ const AuthForms = () => {
           spacing={3}
           xs={12}
         >
-          {isRegistering ? (
-            <RegistrationForm backToLogin={() => setIsRegistering(false)} />
-          ) : (
-            <AuthButtons goToRegistration={() => setIsRegistering(true)} />
-          )}
+          <AuthButtons />
         </Grid>
       </Grid>
     </>

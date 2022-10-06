@@ -6,6 +6,7 @@ import { useIsLoggedIn } from "./providers/Authentication";
 
 import VerifyEmail from "./pages/VerifyEmail";
 import { useIsEmailVerified } from "./providers/Authentication";
+import RegisterScreen from "./pages/RegisterScreen";
 
 export default function Router() {
   const isLoggedIn = useIsLoggedIn();
@@ -42,6 +43,10 @@ export default function Router() {
           ) : (
             <Home />
           ),
+        },
+        {
+          path: "register",
+          element: <RegisterScreen />,
         },
       ],
     },

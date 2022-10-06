@@ -21,17 +21,20 @@ const defaultProfile =
 const acceptFriendRequest = async (loggedInUser, friendRequest) => {
   try {
     //1. create conversation between both users
+    console.log("creating conversation");
     const conversation = await MessageController.createConversation(
       loggedInUser.uid,
       friendRequest?.user?.id
     );
     //2. Add friend to friend list in both users
+    console.log("adding friend to list in both users");
     await UserController.addFriends(
       conversation.id,
       loggedInUser?.uid,
       friendRequest?.user?.id
     );
     //3. Remove friendRequest
+    console.log("remove request");
     await deleteDocOnCollection("friendRequests", friendRequest.id);
   } catch (e) {
     console.log(e);
