@@ -6,7 +6,7 @@
   "etags": {
     "chat-serverless-89e6b": {
       "extensionInstances": {
-        "firestore-send-email": "732db5d98ba3278aa9bd400b00b074ed4750fb15936111b1a573c4c48e61541c"
+        "firestore-send-email": "4cdfa1e632f9110853aa87da4a3a576ef13fa9d843fe2d55ced10f5f4a5d64ad"
       }
     }
   }
