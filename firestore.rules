@@ -3,7 +3,12 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     function isMyConversation() {
-      return isLoggedUser() && (request.auth.uid == resource.data.user_1_id || request.auth.uid == resource.data.user_2_id) ;
+      return isLoggedUser() && (request.auth.uid == resource.data.user_1_id || request.auth.uid == resource.data.user_2_id ) ;
+    }
+    
+    function isInsideMyConversation(conversationId) {
+    	return (get(/databases/$(database)/documents/conversations/$(conversationId)).data.user_1_id == (request.auth.uid) )||
+      (get(/databases/$(database)/documents/conversations/$(conversationId)).data.user_2_id == (request.auth.uid))
     }
   
     function isLoggedUser() {
@@ -18,10 +23,14 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    match /conversations/{conversationId=**} {
+    match /conversations/{conversationId} {
       allow read, write: if isMyConversation();
       allow create: if isLoggedUser();
     }
+    
+    match /conversations/{conversationId}/messages/{messageId} {
+        allow read, write: if isInsideMyConversation(conversationId);
+  }
 
     match /users/{userId} {
       allow read, write, create: if isLoggedUser();
