@@ -12,6 +12,22 @@ class UserController {
     return listenDocsToArray(`users/${userId}/friends`, callback);
   }
 
+  async registerNotificationToken(userId, token) {
+    try {
+      const user = await getDocFromFirestore("users", userId);
+      if (!user) {
+        return;
+      }
+      return setDocInCollection(
+        "users",
+        { ...user, notificationToken: token },
+        userId
+      );
+    } catch (e) {
+      console.log("error registering notif token", e);
+    }
+  }
+
   async addFriends(conversationId, user1Id, user2Id) {
     // update user 1
     const user1 = await getDocFromFirestore("users", user1Id);
@@ -44,7 +60,6 @@ class UserController {
       "users",
       where("email", "==", email)
     );
-    console.log("ret", ret);
     return ret?.[0];
   }
 }

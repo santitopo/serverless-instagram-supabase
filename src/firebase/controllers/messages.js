@@ -10,6 +10,15 @@ class MessagesController {
     );
   }
 
+  listenLastMessageOfConversation(conversationId, callback) {
+    return listenDocsToArray(
+      `conversations/${conversationId}/messages`,
+      callback,
+      { field: "sent_at", direction: "desc" },
+      1
+    );
+  }
+
   async sendMessage(conversationId, messageData) {
     return addDocToCollection(
       `conversations/${conversationId}/messages`,

@@ -82,7 +82,6 @@ const onSendMessage = async (conversationId, message, sentBy, selectedFile) => {
       const imageRef = ref(storage, `messages/${sentBy}/${randomId}.jpg`);
       await uploadBytes(imageRef, selectedFile);
       imageUrl = await getDownloadURL(imageRef);
-      console.log("finished uploading picture", imageUrl);
     }
     return MessagesController.sendMessage(conversationId, {
       body: message,
@@ -102,7 +101,6 @@ const ChatView = ({ messages, conversationId, friendName }) => {
   const bottomRef = useRef(null);
 
   const handleMessageSending = () => {
-    console.log("Sending message: ", message);
     onSendMessage(conversationId, message, loggedInUser.uid, selectedFile);
     setMessage("");
     setSelectedFile("");
@@ -134,8 +132,11 @@ const ChatView = ({ messages, conversationId, friendName }) => {
               {messages.length > 0 ? (
                 messages.map((message) => (
                   <Message
-                    key={`${message.body}-${message.sentAt}-${message.from}`}
+                    key={`${message.body}-${message.sent_at}-${message.sent_by}`}
                     selfMessage={message.sent_by === loggedInUser.uid}
+                    from={
+                      message.sent_by === loggedInUser.uid ? null : friendName
+                    }
                     {...message}
                   />
                 ))

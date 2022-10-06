@@ -35,7 +35,7 @@ const SSOSignIn = async (provider) => {
   const auth = getAuth();
   const userCredential = await signInWithPopup(auth, provider);
   const fbUser = userCredential.user;
-  const user = await UserController.postUser(
+  await UserController.postUser(
     {
       name: fbUser.displayName,
       email: fbUser.email,
@@ -43,7 +43,6 @@ const SSOSignIn = async (provider) => {
     },
     fbUser.uid
   );
-  console.log("added", user);
 };
 
 const onEmailPasswordSignIn = async (auth, email, password) => {
@@ -64,19 +63,16 @@ const onEmailPasswordSignUp = async (
       const fbUser = userCredential.user;
       // Registered properly
       // Upload picture
-      console.log("about to upload profile picture");
       let profilePictureURL = null;
       try {
         const imageRef = ref(storage, `profilePictures/${fbUser.uid}.jpg`);
         await uploadBytes(imageRef, profilePicture);
         profilePictureURL = await getDownloadURL(imageRef);
-        console.log("success uploading");
       } catch (e) {
         console.log("error trying to upload profile picture", e);
       }
       // Register user in firestore
-      console.log("will register user in firestore");
-      const user = await UserController.postUser(
+      await UserController.postUser(
         {
           name,
           email,
@@ -84,9 +80,7 @@ const onEmailPasswordSignUp = async (
         },
         fbUser.uid
       );
-      console.log("will send email verification to", userCredential.user);
       sendEmailVerification(userCredential.user);
-      console.log("added", user);
     }
   );
 };
