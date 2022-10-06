@@ -18,6 +18,8 @@ import {
 import ChatView from "../components/ChatView";
 
 import { addDocToCollection } from "../firebase/utils/addDocToCollection";
+import { getDocFromFirestore } from "../firebase/utils/getDocFromFirestore";
+
 import { selectUser } from "../redux/auth";
 
 import UserController from "../firebase/controllers/users";
@@ -25,13 +27,38 @@ import MessagesController from "../firebase/controllers/messages";
 import { useSelector } from "react-redux";
 import Invitations from "./Invitations";
 
-const sendFriendRequest = async (email, user) => {
-  const friendRequest = {
-    from: user.email,
-    to: email,
-  };
-  alert(`Se le ha enviado una solicitud de amistad a ${email}`);
-  await addDocToCollection("friendRequests", friendRequest);
+const sendFriendRequest = async (to, from) => {
+  try {
+    console.log("starting send request", to, from);
+    const friendRequest = {
+      from: from,
+      to,
+    };
+
+    const createdRequest = await addDocToCollection(
+      "friendRequests",
+      friendRequest
+    );
+
+    const userRegisteredWithEmail = await getDocFromFirestore("users", to);
+    if (!userRegisteredWithEmail) {
+      const emailToAdd = {
+        to,
+        message: {
+          subject: "Esto es una prueba!",
+          html: `
+          <h4>Invitacion de registro a la plataforma</h4>
+          <p>Esta es una invitacion a unirse al Serverless Chat!</p> <br>
+          <p>Haz click en este <a href=${process.env.REACT_APP_DOMAIN}/register?invitationId=${createdRequest.id}>link</a> 
+          para completar el registro</p>`,
+        },
+      };
+      await addDocToCollection("emails", emailToAdd);
+    }
+  } catch (e) {
+    console.log("error sending invite", e);
+  }
+  alert(`Se le ha enviado una solicitud de amistad a ${to}`);
 };
 
 const AddFriend = ({ friendList }) => {
@@ -53,7 +80,7 @@ const AddFriend = ({ friendList }) => {
       if (foundFriend) {
         return setError("Ya eres amigo de este usuario!");
       }
-      await sendFriendRequest(email, loggedInUser);
+      await sendFriendRequest(email, loggedInUser?.email);
       setEmail("");
       setError(null);
     } catch (e) {
