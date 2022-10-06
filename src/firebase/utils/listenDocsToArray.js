@@ -7,7 +7,12 @@ import {
   limit,
 } from "firebase/firestore";
 
-export const listenDocsToArray = (collectionName, callback, orderByParam) => {
+export const listenDocsToArray = (
+  collectionName,
+  callback,
+  orderByParam,
+  limitAmount = 50
+) => {
   const db = getFirestore();
 
   console.log("collectionName", collectionName);
@@ -18,7 +23,7 @@ export const listenDocsToArray = (collectionName, callback, orderByParam) => {
     query(
       collectionRef,
       orderBy(orderByParam.field, orderByParam.direction),
-      limit(50)
+      limit(limitAmount)
     );
 
   return onSnapshot(

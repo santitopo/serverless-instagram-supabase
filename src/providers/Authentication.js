@@ -32,10 +32,12 @@ const Authentication = ({ children }) => {
           );
         }
       } catch (err) {
-        alert(
-          "Por favor otorgue permisos para notificaciones en la configuracion de su navegador."
-        );
         console.log("An error occurred while retrieving token. ", err);
+        return setTimeout(() => {
+          alert(
+            "Por favor otorgue permisos para notificaciones en la configuracion de su navegador."
+          );
+        }, 2000);
       }
     },
     [messaging]
@@ -45,7 +47,10 @@ const Authentication = ({ children }) => {
     if (!user?.uid) {
       return;
     }
-    fetchAndStoreToken(user.uid);
+    const timer = fetchAndStoreToken(user.uid);
+    return () => {
+      timer && clearTimeout(timer);
+    };
   }, [fetchAndStoreToken, user]);
 
   useEffect(() => {
