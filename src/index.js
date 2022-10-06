@@ -28,9 +28,9 @@ const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 getMessaging(firebaseApp);
 
-//connectAuthEmulator(auth, "http://localhost:9099");
-//connectFirestoreEmulator(firestore, "localhost", 8080);
-//connectStorageEmulator(storage, "localhost", 9199);
+connectAuthEmulator(auth, "http://localhost:9099");
+connectFirestoreEmulator(firestore, "localhost", 8080);
+connectStorageEmulator(storage, "localhost", 9199);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 

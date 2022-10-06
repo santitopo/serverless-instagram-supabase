@@ -55,18 +55,16 @@ const CustomAppBar = ({ title }) => {
         {isLoggedIn && (
           <Button
             style={{ backgroundColor: "white" }}
-            onClick={() => {
-              signOut(auth)
-                .then(() => {
-                  UserController.registerNotificationToken(
-                    loggedInUser.uid,
-                    null
-                  );
-                  console.log("logged out successfully");
-                })
-                .catch((error) => {
-                  console.log("an error happened signing out", { error });
-                });
+            onClick={async () => {
+              try {
+                await UserController.registerNotificationToken(
+                  loggedInUser.uid,
+                  null
+                );
+                await signOut(auth);
+              } catch (e) {
+                console.log("an error happened signing out", e);
+              }
             }}
           >
             {"Cerrar Sesión"}

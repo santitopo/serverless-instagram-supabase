@@ -13,15 +13,21 @@ class UserController {
   }
 
   async registerNotificationToken(userId, token) {
-    const user = await getDocFromFirestore("users", userId);
-    if (!user) {
-      return;
+    try {
+      console.log("inside register notif token", userId);
+      const user = await getDocFromFirestore("users", userId);
+      console.log("passed user fetch");
+      if (!user) {
+        return;
+      }
+      return setDocInCollection(
+        "users",
+        { ...user, notificationToken: token },
+        userId
+      );
+    } catch (e) {
+      console.log("error registering notif token", e);
     }
-    return setDocInCollection(
-      "users",
-      { ...user, notificationToken: token },
-      userId
-    );
   }
 
   async addFriends(conversationId, user1Id, user2Id) {

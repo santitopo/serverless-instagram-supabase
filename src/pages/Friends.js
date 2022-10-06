@@ -40,7 +40,7 @@ const sendFriendRequest = async (to, from) => {
       friendRequest
     );
 
-    const userRegisteredWithEmail = await getDocFromFirestore("users", to);
+    const userRegisteredWithEmail = await UserController.getUserFromEmail(to);
     if (!userRegisteredWithEmail) {
       const emailToAdd = {
         to,
