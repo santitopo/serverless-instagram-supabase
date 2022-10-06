@@ -14,12 +14,12 @@ import { getStorage, connectStorageEmulator } from "firebase/storage";
 import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAEQRNTnPfAkvFxCEXW0KteKbU3Feb4OvY",
-  authDomain: "chat-serverless-89e6b.firebaseapp.com",
-  projectId: "chat-serverless-89e6b",
-  storageBucket: "chat-serverless-89e6b.appspot.com",
-  messagingSenderId: "329953320793",
-  appId: "1:329953320793:web:3eb49259572a636fd5b648",
+  apiKey: process.env.REACT_APP_APIKEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROJECTID,
+  storageBucket: process.env.REACT_APP_STORAGEBUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGINGSENDERID,
+  appId: process.env.REACT_APP_APPID,
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
@@ -28,9 +28,9 @@ const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 getMessaging(firebaseApp);
 
-connectAuthEmulator(auth, "http://localhost:9099");
-connectFirestoreEmulator(firestore, "localhost", 8080);
-connectStorageEmulator(storage, "localhost", 9199);
+//connectAuthEmulator(auth, "http://localhost:9099");
+//connectFirestoreEmulator(firestore, "localhost", 8080);
+//connectStorageEmulator(storage, "localhost", 9199);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
