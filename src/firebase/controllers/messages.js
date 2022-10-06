@@ -14,7 +14,7 @@ class MessagesController {
     return listenDocsToArray(
       `conversations/${conversationId}/messages`,
       callback,
-      { field: "sent_at", direction: "asc" },
+      { field: "sent_at", direction: "desc" },
       1
     );
   }

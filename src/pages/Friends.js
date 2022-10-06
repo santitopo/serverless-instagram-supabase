@@ -1,5 +1,5 @@
 import "./Friends.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import List from "@mui/material/List";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
@@ -29,7 +29,6 @@ import Invitations from "./Invitations";
 
 const sendFriendRequest = async (to, from) => {
   try {
-    console.log("starting send request", to, from);
     const friendRequest = {
       from: from,
       to,
@@ -128,53 +127,14 @@ const AddFriend = ({ friendList }) => {
   );
 };
 
-const ReceivedInvitationList = ({
-  selectedFriend,
-  onSelectFriend,
-  friendList,
-}) => {
-  return (
-    <Grid item xs={12}>
-      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-        Solicitudes Recibidas
-      </Typography>
-      <div id="list-container">
-        {friendList && friendList?.length > 0 ? (
-          <List dense={false}>
-            {friendList.map((friend) => (
-              <ListItemButton
-                selected={selectedFriend?.uid === friend.id}
-                key={friend.id}
-                onClick={() => {
-                  onSelectFriend(friend);
-                }}
-              >
-                <ListItemAvatar>
-                  <Avatar src={friend.profilePicture}>
-                    <FolderIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary={friend.name} secondary={friend.email} />
-              </ListItemButton>
-            ))}
-          </List>
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              margin: 5,
-              justifyContent: "center",
-            }}
-          >
-            <Typography>{"No tienes ningún amigo aún"}</Typography>
-          </Box>
-        )}
-      </div>
-    </Grid>
-  );
+const getReadableLastMessage = (friend, loggedInUser) => {
+  return `${friend?.lastMessage?.sent_at?.toDate().toLocaleString()} : (${
+    friend?.lastMessage?.sent_by === loggedInUser?.uid ? "Tu" : friend.name
+  }) - ${friend?.lastMessage?.body}`;
 };
 
 const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
+  const loggedInUser = useSelector(selectUser);
   return (
     <Grid item xs={12}>
       <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
@@ -187,6 +147,12 @@ const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
               <ListItemButton
                 selected={selectedFriend?.uid === friend.id}
                 key={friend.id}
+                style={
+                  friend?.lastMessageRead ||
+                  friend?.lastMessage?.sent_by === loggedInUser.uid
+                    ? null
+                    : { backgroundColor: "#c7ecee" }
+                }
                 onClick={() => {
                   onSelectFriend(friend);
                 }}
@@ -196,7 +162,14 @@ const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
                     <FolderIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary={friend.name} secondary={friend.email} />
+                <ListItemText
+                  primary={`${friend.name} (${friend.email})`}
+                  secondary={
+                    friend?.lastMessage
+                      ? getReadableLastMessage(friend, loggedInUser)
+                      : ""
+                  }
+                />
               </ListItemButton>
             ))}
           </List>
@@ -216,8 +189,9 @@ const FriendList = ({ selectedFriend, onSelectFriend, friendList }) => {
   );
 };
 
-const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
+const LeftContainer = ({ openChatView, selectedFriend }) => {
   const [friendList, setFriendList] = useState([]);
+  const lastMessageListeners = useRef({});
   const loggedInUser = useSelector(selectUser);
 
   useEffect(() => {
@@ -231,13 +205,54 @@ const LeftContainer = ({ onSelectFriend, selectedFriend }) => {
     };
   }, [loggedInUser]);
 
+  useEffect(() => {
+    if (friendList?.length > 0) {
+      //add missing listeners
+      friendList.forEach((friend) => {
+        if (!lastMessageListeners.current[friend?.email]) {
+          const listener = MessagesController.listenLastMessageOfConversation(
+            friend?.conversation_id,
+            (message) => {
+              setFriendList((prevList) => {
+                const newList = prevList.map((prevFriend) => {
+                  if (prevFriend?.email === friend?.email) {
+                    return {
+                      ...prevFriend,
+                      lastMessage: message[0],
+                      lastMessageRead: prevFriend?.lastMessageRead
+                        ? false
+                        : true,
+                    };
+                  }
+                  return prevFriend;
+                });
+                return newList;
+              });
+            }
+          );
+          lastMessageListeners.current[friend?.email] = listener;
+        }
+      });
+    }
+  }, [friendList]);
+
   return (
     <Grid container item xs={6}>
       <AddFriend friendList={friendList} />
       <FriendList
         friendList={friendList}
         selectedFriend={selectedFriend}
-        onSelectFriend={onSelectFriend}
+        onSelectFriend={(friend) => {
+          setFriendList((prev) => {
+            return prev.map((prevFriend) => {
+              if (prevFriend?.email === friend?.email) {
+                return { ...prevFriend, lastMessageRead: true };
+              }
+              return prevFriend;
+            });
+          });
+          openChatView(friend);
+        }}
       />
       <Invitations />
     </Grid>
@@ -257,7 +272,6 @@ const Conversation = ({ selectedFriend }) => {
       setMessages
     );
     return () => {
-      console.log("will unsuscribe");
       listener && listener();
     };
   }, [selectedFriend]);
@@ -284,7 +298,7 @@ export default function FriendsSearch() {
   return (
     <Grid sx={{ paddingX: 5 }} alignItems={"flex-start"} container spacing={2}>
       <LeftContainer
-        onSelectFriend={setSelectedFriend}
+        openChatView={setSelectedFriend}
         selectedFriend={selectedFriend}
       />
       {selectedFriend && <Conversation selectedFriend={selectedFriend} />}

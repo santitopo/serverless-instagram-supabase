@@ -15,8 +15,6 @@ export const listenDocsToArray = (
 ) => {
   const db = getFirestore();
 
-  console.log("collectionName", collectionName);
-  console.log("orderByParam", orderByParam);
   const collectionRef = collection(db, collectionName);
   const queryRef =
     orderByParam &&
@@ -34,7 +32,6 @@ export const listenDocsToArray = (
         const data = doc.data();
         documents.push({ id: doc.id, ...data });
       });
-      console.log("Will call callback with: ", documents);
       callback(documents);
     }
   );

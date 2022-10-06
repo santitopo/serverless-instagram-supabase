@@ -24,7 +24,6 @@ const Authentication = ({ children }) => {
         });
 
         if (currentToken) {
-          console.log("the token retrieved is", currentToken);
           UserController.registerNotificationToken(userId, currentToken);
         } else {
           console.log(
@@ -32,7 +31,6 @@ const Authentication = ({ children }) => {
           );
         }
       } catch (err) {
-        console.log("An error occurred while retrieving token. ", err);
         return setTimeout(() => {
           alert(
             "Por favor otorgue permisos para notificaciones en la configuracion de su navegador."
@@ -69,9 +67,7 @@ const Authentication = ({ children }) => {
             uid: fbUser?.uid,
           })
         );
-        console.log(fbUser);
       } else {
-        console.log("cleared auth");
         dispatch(authCleared());
       }
     });

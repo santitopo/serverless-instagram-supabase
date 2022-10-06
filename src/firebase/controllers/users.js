@@ -14,9 +14,7 @@ class UserController {
 
   async registerNotificationToken(userId, token) {
     try {
-      console.log("inside register notif token", userId);
       const user = await getDocFromFirestore("users", userId);
-      console.log("passed user fetch");
       if (!user) {
         return;
       }
@@ -62,7 +60,6 @@ class UserController {
       "users",
       where("email", "==", email)
     );
-    console.log("ret", ret);
     return ret?.[0];
   }
 }
