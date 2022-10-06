@@ -33,6 +33,8 @@ En otra consola, en la raíz del proyecto ejecutar:
 2. `npm ci`
 3. `npm test`
 
+## Link publico
+https://chat-serverless-89e6b.web.app
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
