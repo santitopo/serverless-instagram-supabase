@@ -32,14 +32,19 @@ const sendFriendRequest = async (email, user) => {
     from: user.email,
     to: email,
   };
-  const userRegisteredWithEmail =  await getDocFromFirestore("users", email);
+  const userRegisteredWithEmail = await getDocFromFirestore("users", email);
   if (!userRegisteredWithEmail) {
     const emailToAdd = {
       to: email,
-      from: user.email,
-      subject: `Invitación de ${user.displayName} a ser amigo`,
-      text: `Hola, ${user.displayName} te ha invitado a ser amigo en la aplicación de chat. Para aceptar la invitación, por favor ingresa a la aplicación y acepta la invitación en el siguiente link: `,
-    }
+      message: {
+        subject: "Esto es una prueba!",
+        html: `
+          <h4>Invitacion de registro a la plataforma</h4>
+          <p>Esta es una invitacion a unirse al Serverless Chat!</p> <br>
+          <p>Haz click en este <a href=${process.env.REACT_APP_DOMAIN}/register?email=${email}>link</a> 
+          para completar el registro</p>`,
+      },
+    };
     await addDocToCollection("emails", emailToAdd);
   }
   alert(`Se le ha enviado una solicitud de amistad a ${email}`);

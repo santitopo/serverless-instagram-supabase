@@ -1,5 +1,13 @@
 {
   "projects": {
     "default": "chat-serverless-89e6b"
+  },
+  "targets": {},
+  "etags": {
+    "chat-serverless-89e6b": {
+      "extensionInstances": {
+        "firestore-send-email": "732db5d98ba3278aa9bd400b00b074ed4750fb15936111b1a573c4c48e61541c"
+      }
+    }
   }
 }
