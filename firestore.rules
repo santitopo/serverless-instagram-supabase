@@ -43,10 +43,14 @@ service cloud.firestore {
     match /users/{userId}/friends/{friendId} {
       allow read: if myResource(userId);
     }
+    
+    match /emails/{emailId} {
+      allow create: if isLoggedUser() && request.resource.data.to != request.auth.token.email
+    }
 
     match /friendRequests/{requestId} {
       allow read: if isLoggedUser();
-      allow create: if isLoggedUser() && request.resource.data.from != request.auth.token.email
+      allow create: if isLoggedUser() && request.resource.data.from == request.auth.token.email
     }
   }
 }

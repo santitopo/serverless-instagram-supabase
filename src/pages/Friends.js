@@ -49,7 +49,7 @@ const sendFriendRequest = async (to, from) => {
           html: `
           <h4>Invitacion de registro a la plataforma</h4>
           <p>Esta es una invitacion a unirse al Serverless Chat!</p> <br>
-          <p>Haz click en este <a href=${process.env.REACT_APP_DOMAIN}/register?invitationId=${createdRequest.id}>link</a> 
+          <p>Haz click en este <a href=${process.env.REACT_APP_DOMAIN}/register?invitationId=${createdRequest.id}>link</a>
           para completar el registro</p>`,
         },
       };
