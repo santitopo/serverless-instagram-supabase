@@ -3,33 +3,55 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     function isMyConversation() {
-      return isLoggedUser() && (request.auth.uid == resource.data.user_1_id || request.auth.uid == resource.data.user_2_id) ;
+      return isLoggedUser() && (request.auth.uid == resource.data.user_1_id || request.auth.uid == resource.data.user_2_id ) ;
+    }
+    
+    function isInsideMyConversation(conversationId) {
+    	return (get(/databases/$(database)/documents/conversations/$(conversationId)).data.user_1_id == (request.auth.uid) )||
+      (get(/databases/$(database)/documents/conversations/$(conversationId)).data.user_2_id == (request.auth.uid))
     }
   
     function isLoggedUser() {
       return request.auth != null;
     }
     
+    function myResource(myId) {
+      return isLoggedUser() && (request.auth.uid ==myId)
+    }
+    
     match /{document=**} {
       allow read, write: if false;
     }
 
-    match /conversations/{conversationId=**} {
+    match /conversations/{conversationId} {
       allow read, write: if isMyConversation();
       allow create: if isLoggedUser();
     }
+    
+    match /conversations/{conversationId}/messages/{messageId} {
+        allow read, write: if isInsideMyConversation(conversationId);
+  }
 
     match /users/{userId} {
       allow read, write, create: if isLoggedUser();
     }
 
     match /users/{userId}/friends/{friendId} {
-      allow create, update: if friendId == request.auth.uid;
+      allow create, update: if (friendId == request.auth.uid) || myResource(userId)
+    }
+    
+    match /users/{userId}/friends/{friendId} {
+      allow read: if myResource(userId);
+    }
+    
+    match /emails/{emailId} {
+      allow create: if isLoggedUser() && request.resource.data.to != request.auth.token.email
     }
 
     match /friendRequests/{requestId} {
-      allow read: if isLoggedUser();
-      allow create: if isLoggedUser() && request.resource.data.from != request.auth.token.email
+      allow read: if true;
+      allow create: if isLoggedUser() && request.resource.data.from == request.auth.token.email
+      allow delete : if isLoggedUser() && get(/databases/$(database)/documents/friendRequests/$(requestId)).data.to == request.auth.token.email
     }
   }
 }

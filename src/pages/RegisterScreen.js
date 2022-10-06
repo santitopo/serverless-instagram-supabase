@@ -6,6 +6,7 @@ import {
   TextField,
   Button,
   useTheme,
+  CircularProgress,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import {
@@ -115,6 +116,7 @@ const RegistrationForm = ({ invitationId }) => {
   const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
   const [generalError, setGeneralError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const auth = getAuth();
   const theme = useTheme();
   const navigate = useNavigate();
@@ -139,6 +141,7 @@ const RegistrationForm = ({ invitationId }) => {
 
   const submitForm = async () => {
     try {
+      setIsLoading(true);
       await onEmailPasswordSignUp(
         auth,
         name,
@@ -149,6 +152,7 @@ const RegistrationForm = ({ invitationId }) => {
       );
       navigate("/home");
     } catch {
+      setIsLoading(false);
       setGeneralError("Error registrando usuario");
     }
   };
@@ -191,12 +195,14 @@ const RegistrationForm = ({ invitationId }) => {
         />
       </div>
       <div id="text-field-container">
-        <FileUploader
-          text={"Seleccionar Foto"}
-          onFileSelectSuccess={(file) => setSelectedFile(file)}
-          onFileSelectError={({ error }) => alert(error)}
-          selectedFileName={selectedFile?.name}
-        />
+        <Box sx={{ margin: 3 }} textAlign="center">
+          <FileUploader
+            text={"Seleccionar Foto"}
+            onFileSelectSuccess={(file) => setSelectedFile(file)}
+            onFileSelectError={({ error }) => alert(error)}
+            selectedFileName={selectedFile?.name}
+          />
+        </Box>
       </div>
       {generalError && (
         <Typography
@@ -218,6 +224,11 @@ const RegistrationForm = ({ invitationId }) => {
           Registrarse
         </Button>
       </Box>
+      {isLoading && (
+        <Box sx={{ margin: 3 }} textAlign="center">
+          <CircularProgress />
+        </Box>
+      )}
 
       <Typography style={{ textAlign: "center" }}>
         <Link
