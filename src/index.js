@@ -11,6 +11,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
+import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAEQRNTnPfAkvFxCEXW0KteKbU3Feb4OvY",
@@ -25,10 +26,11 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
+getMessaging(firebaseApp);
 
-//connectAuthEmulator(auth, "http://localhost:9099");
-//connectFirestoreEmulator(firestore, "localhost", 8080);
-//connectStorageEmulator(storage, "localhost", 9199);
+connectAuthEmulator(auth, "http://localhost:9099");
+connectFirestoreEmulator(firestore, "localhost", 8080);
+connectStorageEmulator(storage, "localhost", 9199);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 

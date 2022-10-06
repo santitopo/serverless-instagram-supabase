@@ -30,14 +30,11 @@ const acceptFriendRequest = async (
   friendRequest
 ) => {
   try {
-    console.log({ loggedInUser, friendThatInvitedMe, friendRequest });
-    console.log("creating conversation between both");
     //1. create conversation between both users
     const conversation = await MessageController.createConversation(
       loggedInUser?.uid,
       friendThatInvitedMe?.id
     );
-    console.log("adding mutual friendship");
 
     //2. Add friend to friend list in both users
     await UserController.addFriends(
@@ -46,7 +43,6 @@ const acceptFriendRequest = async (
       friendThatInvitedMe?.id
     );
 
-    console.log("removing firend request");
     //3. Remove friendRequest
     await deleteDocOnCollection("friendRequests", friendRequest.id);
   } catch (e) {
@@ -62,7 +58,6 @@ const onEmailPasswordSignUp = async (
   profilePicture,
   invitationId
 ) => {
-  console.log({ name, email, password, profilePicture, invitationId });
   const storage = getStorage();
   return createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
@@ -70,13 +65,10 @@ const onEmailPasswordSignUp = async (
       const fbUser = userCredential.user;
       // Registered properly
       // Upload picture
-      console.log("registered in auth correctly");
       const imageRef = ref(storage, `profilePictures/${fbUser.uid}.jpg`);
       await uploadBytes(imageRef, profilePicture);
       const url = await getDownloadURL(imageRef);
-      console.log("uploaded pic correctly");
       // Register user in firestore
-      console.log("registering in firestore");
       const user = await UserController.postUser(
         {
           name,
@@ -85,9 +77,7 @@ const onEmailPasswordSignUp = async (
         },
         fbUser.uid
       );
-      console.log("registered in firestore correctly");
       if (invitationId) {
-        console.log("there was an invitation id");
         const invitation = await getDocFromFirestore(
           "friendRequests",
           invitationId
@@ -95,15 +85,12 @@ const onEmailPasswordSignUp = async (
         const friendThatInvitedMe = await UserController.getUserFromEmail(
           invitation?.from
         );
-        console.log("fetched the invitation, it is", invitation);
         await acceptFriendRequest(fbUser, friendThatInvitedMe, {
           ...invitation,
           id: invitationId,
         });
       }
-      console.log("will send email verification", userCredential.user);
       sendEmailVerification(userCredential.user);
-      console.log("added", user);
     })
     .catch((e) => {
       console.log("error during registration...", e);
@@ -122,12 +109,9 @@ const RegistrationForm = ({ invitationId }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("hello", invitationId);
     if (invitationId) {
-      console.log("gonna call");
       getDocFromFirestore("friendRequests", invitationId)
         .then((friendRequest) => {
-          console.log("the friend request fetched is", friendRequest);
           if (!friendRequest) {
             throw new Error();
           }
@@ -247,7 +231,6 @@ const RegistrationForm = ({ invitationId }) => {
 export default function RegisterScreen() {
   const [searchParams] = useSearchParams();
   const invitationId = searchParams.get("invitationId");
-  console.log("invitationId", invitationId);
 
   return (
     <Grid sx={{ paddingY: 20 }} style={{ height: "80vh" }} container>
