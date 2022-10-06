@@ -1,9 +1,35 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    function isMyConversation() {
+      return isLoggedUser() && (request.auth.uid == resource.data.user_1_id || request.auth.uid == resource.data.user_2_id) ;
+    }
+  
+    function isLoggedUser() {
+      return request.auth != null;
+    }
+    
     match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2022, 10, 23);
+      allow read, write: if false;
+    }
+
+    match /conversations/{conversationId=**} {
+      allow read, write: if isMyConversation();
+      allow create: if isLoggedUser();
+    }
+
+    match /users/{userId} {
+      allow read, write, create: if isLoggedUser();
+    }
+
+    match /users/{userId}/friends/{friendId} {
+      allow create, update: if friendId == request.auth.uid;
+    }
+
+    match /friendRequests/{requestId} {
+      allow read: if isLoggedUser();
+      allow create: if isLoggedUser() && request.resource.data.from != request.auth.token.email
     }
   }
 }
