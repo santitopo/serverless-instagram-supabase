@@ -18,7 +18,7 @@ export default function Router() {
 
       element: (
         <>
-          <CustomAppBar title={"Serverless Chat"} isLoggedIn={isLoggedIn} />
+          <CustomAppBar title={"InstaOrt"} isLoggedIn={isLoggedIn} />
           <Outlet />
         </>
       ),

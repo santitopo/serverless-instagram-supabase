@@ -99,6 +99,7 @@ const onEmailPasswordSignUp = async (
 
 const RegistrationForm = ({ invitationId }) => {
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
@@ -142,89 +143,100 @@ const RegistrationForm = ({ invitationId }) => {
   };
 
   return (
-    <div id="auth-button-container">
-      <Typography style={{ textAlign: "center", fontSize: 24 }}>
-        {"Registrarse:"}
-      </Typography>
-      <div id="text-field-container">
-        <TextField
-          fullWidth
-          id="name-registration"
-          label="Nombre Completo"
-          variant="outlined"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
-      <div id="text-field-container">
-        <TextField
-          fullWidth
-          id="email-registration"
-          label="Correo Electrónico"
-          variant="outlined"
-          disabled={!!invitationId}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      <div id="text-field-container">
-        <TextField
-          fullWidth
-          type={"password"}
-          id="password-registration"
-          label="Contraseña"
-          variant="outlined"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <div id="text-field-container">
-        <Box sx={{ margin: 3 }} textAlign="center">
-          <FileUploader
-            text={"Seleccionar Foto"}
-            onFileSelectSuccess={(file) => setSelectedFile(file)}
-            onFileSelectError={({ error }) => alert(error)}
-            selectedFileName={selectedFile?.name}
-          />
-        </Box>
-      </div>
-      {generalError && (
-        <Typography
-          color={theme.palette.error.main}
-          style={{ textAlign: "center" }}
-        >
-          {generalError}
+    <Grid item xs={5}>
+      <div id="auth-button-container">
+        <Typography style={{ textAlign: "center", fontSize: 24 }}>
+          {"Registrarse:"}
         </Typography>
-      )}
+        <div id="text-field-container">
+          <TextField
+            fullWidth
+            label="Nombre de Usuario"
+            variant="outlined"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </div>
+        <div id="text-field-container">
+          <TextField
+            fullWidth
+            id="name-registration"
+            label="Nombre Completo"
+            variant="outlined"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div id="text-field-container">
+          <TextField
+            fullWidth
+            id="email-registration"
+            label="Correo Electrónico"
+            variant="outlined"
+            disabled={!!invitationId}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div id="text-field-container">
+          <TextField
+            fullWidth
+            type={"password"}
+            id="password-registration"
+            label="Contraseña"
+            variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div id="text-field-container">
+          <Box sx={{ margin: 3 }} textAlign="center">
+            <FileUploader
+              text={"Seleccionar Foto"}
+              onFileSelectSuccess={(file) => setSelectedFile(file)}
+              onFileSelectError={({ error }) => alert(error)}
+              selectedFileName={selectedFile?.name}
+            />
+          </Box>
+        </div>
+        {generalError && (
+          <Typography
+            color={theme.palette.error.main}
+            style={{ textAlign: "center" }}
+          >
+            {generalError}
+          </Typography>
+        )}
 
-      <Box sx={{ margin: 3 }} textAlign="center">
-        <Button
-          onClick={submitForm}
-          variant="contained"
-          component="label"
-          className="btn btn-primary"
-          disabled={!name || !email || !selectedFile}
-        >
-          Registrarse
-        </Button>
-      </Box>
-      {isLoading && (
         <Box sx={{ margin: 3 }} textAlign="center">
-          <CircularProgress />
+          <Button
+            onClick={submitForm}
+            variant="contained"
+            component="label"
+            className="btn btn-primary"
+            disabled={!name || !email || !selectedFile}
+          >
+            Registrarse
+          </Button>
         </Box>
-      )}
+        {isLoading && (
+          <Box sx={{ margin: 3 }} textAlign="center">
+            <CircularProgress />
+          </Box>
+        )}
 
-      <Typography style={{ textAlign: "center" }}>
-        <Link
-          component="button"
-          variant="body2"
-          onClick={() => navigate("/home")}
-          sx={{ fontSize: 16 }}
-        >
-          {"Ya está registrado? Iniciar sesión!"}
-        </Link>
-      </Typography>
-    </div>
+        <Typography style={{ textAlign: "center" }}>
+          <Link
+            component="button"
+            variant="body2"
+            onClick={() => navigate("/home")}
+            sx={{ fontSize: 16 }}
+          >
+            {"Ya está registrado? Iniciar sesión!"}
+          </Link>
+        </Typography>
+      </div>
+    </Grid>
   );
 };
 
