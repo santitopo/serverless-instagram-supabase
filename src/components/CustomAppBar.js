@@ -2,16 +2,14 @@ import React from "react";
 
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import { getAuth, signOut } from "firebase/auth";
 
 import { Button, Typography, useTheme } from "@mui/material";
 import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/auth";
-import UserController from "../firebase/controllers/users";
+import { supabase } from "../supabase";
 
 const CustomAppBar = ({ title }) => {
-  const auth = getAuth();
   const theme = useTheme();
   const isLoggedIn = useIsLoggedIn();
   const loggedInUser = useSelector(selectUser);
@@ -57,11 +55,7 @@ const CustomAppBar = ({ title }) => {
             style={{ backgroundColor: "white" }}
             onClick={async () => {
               try {
-                await UserController.registerNotificationToken(
-                  loggedInUser.uid,
-                  null
-                );
-                await signOut(auth);
+                await supabase.auth.signOut();
               } catch (e) {
                 console.log("an error happened signing out", e);
               }

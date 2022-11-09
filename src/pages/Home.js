@@ -8,6 +8,7 @@ import {
   useTheme,
   ToggleButton,
   Switch,
+  CircularProgress,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import React, { useState } from "react";
@@ -182,6 +183,11 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
             : "Iniciar Sesión Con Magic Link"}
         </Button>
       </Box>
+      {loading && (
+        <Box sx={{ margin: 3 }} textAlign="center">
+          <CircularProgress />
+        </Box>
+      )}
 
       <Typography style={{ textAlign: "center" }}>
         <Link
