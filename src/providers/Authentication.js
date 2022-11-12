@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { authCleared, authenticated, selectUser } from "../redux/auth";
-import { onAuthStateChanged } from "firebase/auth";
-import { getAuth } from "firebase/auth";
-import { getMessaging, getToken } from "firebase/messaging";
-import UserController from "../firebase/controllers/users";
 import { supabase } from "../supabase";
 
 const Authentication = ({ children }) => {
@@ -14,7 +10,6 @@ const Authentication = ({ children }) => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log("new session! ", session);
-      //setSession(session)
       if (session?.user) {
         dispatch(authenticated(session?.user));
       }
@@ -22,7 +17,6 @@ const Authentication = ({ children }) => {
 
     supabase.auth.onAuthStateChange((_event, session) => {
       console.log("new session! ", session);
-      //setSession(session)
       if (session?.user) {
         dispatch(authenticated(session?.user));
       } else {

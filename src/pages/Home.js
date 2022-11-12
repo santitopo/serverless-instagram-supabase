@@ -12,59 +12,11 @@ import {
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
-
-import UserController from "../firebase/controllers/users";
 import "./Home.css";
 import { selectUser } from "../redux/auth";
 import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { supabase } from "../supabase";
-
-const onEmailPasswordSignIn = async (auth, email, password) => {
-  return signInWithEmailAndPassword(auth, email, password);
-};
-
-const onEmailPasswordSignUp = async (
-  auth,
-  name,
-  email,
-  password,
-  profilePicture
-) => {
-  const storage = getStorage();
-  return createUserWithEmailAndPassword(auth, email, password).then(
-    async (userCredential) => {
-      // Signed in
-      const fbUser = userCredential.user;
-      // Registered properly
-      // Upload picture
-      let profilePictureURL = null;
-      try {
-        const imageRef = ref(storage, `profilePictures/${fbUser.uid}.jpg`);
-        await uploadBytes(imageRef, profilePicture);
-        profilePictureURL = await getDownloadURL(imageRef);
-      } catch (e) {
-        console.log("error trying to upload profile picture", e);
-      }
-      // Register user in firestore
-      await UserController.postUser(
-        {
-          name,
-          email,
-          profilePicture: profilePictureURL,
-        },
-        fbUser.uid
-      );
-      sendEmailVerification(userCredential.user);
-    }
-  );
-};
 
 const EmailPasswordLogin = ({ goToRegistration }) => {
   const [email, setEmail] = useState("");
@@ -73,6 +25,7 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
   const [loginWithPassword, setLoginWithPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
+  const navigate = useNavigate();
 
   const submitLoginForm = async (e) => {
     e.preventDefault();
@@ -170,7 +123,7 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
             <Link
               component="button"
               variant="body2"
-              //onClick={goToRegistration}
+              onClick={() => navigate("/forgot-password")}
               sx={{ fontSize: 16 }}
             >
               {"Olvidó su contraseña?"}

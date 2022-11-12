@@ -9,47 +9,11 @@ import {
   CircularProgress,
 } from "@mui/material";
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 
-import UserController from "../firebase/controllers/users";
 import "./Home.css";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import FileUploader from "../components/FileUploader";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabase";
-import Avatar from "../components/Avatar";
-
-const onFirebaseEmailPasswordSignUp = async (
-  auth,
-  name,
-  email,
-  password,
-  profilePicture
-) => {
-  const storage = getStorage();
-  return createUserWithEmailAndPassword(auth, email, password)
-    .then(async (userCredential) => {
-      // Signed in
-      const fbUser = userCredential.user;
-      // Registered properly
-      // Upload picture
-      const imageRef = ref(storage, `profilePictures/${fbUser.uid}.jpg`);
-      await uploadBytes(imageRef, profilePicture);
-      const url = await getDownloadURL(imageRef);
-      // Register user in firestore
-      const user = await UserController.postUser(
-        {
-          name,
-          email,
-          profilePicture: url,
-        },
-        fbUser.uid
-      );
-    })
-    .catch((e) => {
-      console.log("Error during registration...", e);
-    });
-};
 
 const RegistrationForm = ({ invitationId }) => {
   const [name, setName] = useState("");
@@ -109,14 +73,6 @@ const RegistrationForm = ({ invitationId }) => {
           },
         },
       });
-      // await onEmailPasswordSignUp(
-      //   auth,
-      //   name,
-      //   email,
-      //   password,
-      //   selectedFile,
-      //   invitationId
-      // );
       cleanForm();
       alert("Por favor confirma tu correo para completar el registro!");
     } catch {
