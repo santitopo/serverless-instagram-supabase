@@ -8,55 +8,23 @@ import {
   useTheme,
   CircularProgress,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  sendEmailVerification,
-} from "firebase/auth";
+import React, { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 import UserController from "../firebase/controllers/users";
-import MessageController from "../firebase/controllers/messages";
 import "./Home.css";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import FileUploader from "../components/FileUploader";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import getDocFromFirestore from "../firebase/utils/getDocFromFirestore";
-import deleteDocOnCollection from "../firebase/utils/deleteDocOnCollection";
+import { supabase } from "../supabase";
+import Avatar from "../components/Avatar";
 
-const acceptFriendRequest = async (
-  loggedInUser,
-  friendThatInvitedMe,
-  friendRequest
-) => {
-  try {
-    //1. create conversation between both users
-    const conversation = await MessageController.createConversation(
-      loggedInUser?.uid,
-      friendThatInvitedMe?.id
-    );
-
-    //2. Add friend to friend list in both users
-    await UserController.addFriends(
-      conversation.id,
-      loggedInUser?.uid,
-      friendThatInvitedMe?.id
-    );
-
-    //3. Remove friendRequest
-    await deleteDocOnCollection("friendRequests", friendRequest.id);
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-const onEmailPasswordSignUp = async (
+const onFirebaseEmailPasswordSignUp = async (
   auth,
   name,
   email,
   password,
-  profilePicture,
-  invitationId
+  profilePicture
 ) => {
   const storage = getStorage();
   return createUserWithEmailAndPassword(auth, email, password)
@@ -77,23 +45,9 @@ const onEmailPasswordSignUp = async (
         },
         fbUser.uid
       );
-      if (invitationId) {
-        const invitation = await getDocFromFirestore(
-          "friendRequests",
-          invitationId
-        );
-        const friendThatInvitedMe = await UserController.getUserFromEmail(
-          invitation?.from
-        );
-        await acceptFriendRequest(fbUser, friendThatInvitedMe, {
-          ...invitation,
-          id: invitationId,
-        });
-      }
-      sendEmailVerification(userCredential.user);
     })
     .catch((e) => {
-      console.log("error during registration...", e);
+      console.log("Error during registration...", e);
     });
 };
 
@@ -105,40 +59,70 @@ const RegistrationForm = ({ invitationId }) => {
   const [selectedFile, setSelectedFile] = useState("");
   const [generalError, setGeneralError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const auth = getAuth();
   const theme = useTheme();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (invitationId) {
-      getDocFromFirestore("friendRequests", invitationId)
-        .then((friendRequest) => {
-          if (!friendRequest) {
-            throw new Error();
-          }
-          setEmail(friendRequest?.to);
-        })
-        .catch(() => {
-          alert("Error aceptando la invitación");
-        });
+  const cleanForm = () => {
+    setName("");
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    setSelectedFile("");
+    setGeneralError("");
+  };
+
+  const uploadAvatar = async () => {
+    try {
+      const fileExt = selectedFile.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      let { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, selectedFile);
+      if (uploadError) {
+        throw uploadError;
+      }
+      const { data } = await supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+      console.log("finished! :)", data.publicUrl);
+      return data.publicUrl;
+    } catch (error) {
+      alert(error.message);
     }
-  }, [invitationId]);
+  };
 
   const submitForm = async () => {
     try {
       setIsLoading(true);
-      await onEmailPasswordSignUp(
-        auth,
-        name,
+      const avatarPath = await uploadAvatar();
+      supabase.auth.signUp({
         email,
         password,
-        selectedFile,
-        invitationId
-      );
-      navigate("/home");
+        options: {
+          emailRedirectTo: process.env.REACT_APP_MAGIC_LINK_REDIRECT_URL,
+          data: {
+            full_name: name,
+            username,
+            avatar_url: avatarPath,
+          },
+        },
+      });
+      // await onEmailPasswordSignUp(
+      //   auth,
+      //   name,
+      //   email,
+      //   password,
+      //   selectedFile,
+      //   invitationId
+      // );
+      cleanForm();
+      alert("Por favor confirma tu correo para completar el registro!");
     } catch {
-      setIsLoading(false);
       setGeneralError("Error registrando usuario");
+    } finally {
+      setIsLoading(false);
     }
   };
 

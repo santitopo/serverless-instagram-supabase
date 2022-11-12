@@ -6,18 +6,15 @@ import {
   TextField,
   Button,
   useTheme,
-  ToggleButton,
   Switch,
   CircularProgress,
 } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  getAuth,
   sendEmailVerification,
 } from "firebase/auth";
 
@@ -76,18 +73,27 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
   const [loginWithPassword, setLoginWithPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
-  const auth = getAuth();
 
-  const submitLoginForm = async () => {
+  const submitLoginForm = async (e) => {
+    e.preventDefault();
     try {
-      await onEmailPasswordSignIn(auth, email, password);
-    } catch (e) {
-      console.log(e);
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
       setGeneralError("Error iniciando sesión");
+      alert(error.error_description || error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleMagicLinkLogin = async (e) => {
+  const submitMagicLinkLogin = async (e) => {
     e.preventDefault();
 
     try {
@@ -98,9 +104,12 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
           emailRedirectTo: process.env.REACT_APP_MAGIC_LINK_REDIRECT_URL,
         },
       });
-      if (error) throw error;
-      alert("Check your email for the login link!");
+      if (error) {
+        throw error;
+      }
+      alert("Encontrarás un link de login en tu mail!");
     } catch (error) {
+      setGeneralError("Error iniciando sesión");
       alert(error.error_description || error.message);
     } finally {
       setLoading(false);
@@ -172,7 +181,7 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
 
       <Box sx={{ margin: 3 }} textAlign="center">
         <Button
-          onClick={loginWithPassword ? submitLoginForm : handleMagicLinkLogin}
+          onClick={loginWithPassword ? submitLoginForm : submitMagicLinkLogin}
           variant="contained"
           component="label"
           className="btn btn-primary"
