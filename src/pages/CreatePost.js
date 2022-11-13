@@ -60,7 +60,7 @@ return (
         <div id="text-field-container">
           <TextField
             fullWidth
-            id="name-registration"
+            id="description"
             label="Descripcion"
             variant="outlined"
             value={description}
