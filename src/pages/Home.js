@@ -6,138 +6,66 @@ import {
   TextField,
   Button,
   useTheme,
+  Switch,
+  CircularProgress,
 } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  getAuth,
-  sendEmailVerification,
-} from "firebase/auth";
-
-import UserController from "../firebase/controllers/users";
 import "./Home.css";
 import { selectUser } from "../redux/auth";
 import { useIsLoggedIn } from "../providers/Authentication";
 import { useSelector } from "react-redux";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import FileUploader from "../components/FileUploader";
-
-const googleProvider = new GoogleAuthProvider();
-const facebookProvider = new FacebookAuthProvider();
-
-const SSOSignIn = async (provider) => {
-  const auth = getAuth();
-  const userCredential = await signInWithPopup(auth, provider);
-  const fbUser = userCredential.user;
-  await UserController.postUser(
-    {
-      name: fbUser.displayName,
-      email: fbUser.email,
-      profilePicture: fbUser.photoURL,
-    },
-    fbUser.uid
-  );
-};
-
-const onEmailPasswordSignIn = async (auth, email, password) => {
-  return signInWithEmailAndPassword(auth, email, password);
-};
-
-const onEmailPasswordSignUp = async (
-  auth,
-  name,
-  email,
-  password,
-  profilePicture
-) => {
-  const storage = getStorage();
-  return createUserWithEmailAndPassword(auth, email, password).then(
-    async (userCredential) => {
-      // Signed in
-      const fbUser = userCredential.user;
-      // Registered properly
-      // Upload picture
-      let profilePictureURL = null;
-      try {
-        const imageRef = ref(storage, `profilePictures/${fbUser.uid}.jpg`);
-        await uploadBytes(imageRef, profilePicture);
-        profilePictureURL = await getDownloadURL(imageRef);
-      } catch (e) {
-        console.log("error trying to upload profile picture", e);
-      }
-      // Register user in firestore
-      await UserController.postUser(
-        {
-          name,
-          email,
-          profilePicture: profilePictureURL,
-        },
-        fbUser.uid
-      );
-      sendEmailVerification(userCredential.user);
-    }
-  );
-};
-
-const GOOGLE_RED = "#F65654";
-const FACEBOOK_BLUE = "#1273EB";
-
-const SSOProviderButton = ({ color, icon, text, onPress }) => {
-  return (
-    <>
-      <div
-        onClick={onPress}
-        style={{ borderColor: color }}
-        id="sso-provider-button"
-      >
-        <img id="button-icon" src={icon} alt={"Button Icon"} />
-        <Typography style={{ color, ...styles.text }}>{text}</Typography>
-      </div>
-    </>
-  );
-};
-
-const GoogleButton = () => {
-  return (
-    <SSOProviderButton
-      onPress={() => SSOSignIn(googleProvider)}
-      color={GOOGLE_RED}
-      text={"Continuar con Google"}
-      icon={require("../assets/google.png")}
-    />
-  );
-};
-
-const FacebookButton = () => {
-  return (
-    <SSOProviderButton
-      onPress={() => SSOSignIn(facebookProvider)}
-      color={FACEBOOK_BLUE}
-      text={"Continuar con Facebook"}
-      icon={require("../assets/facebook.png")}
-    />
-  );
-};
+import { supabase } from "../supabase";
 
 const EmailPasswordLogin = ({ goToRegistration }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [generalError, setGeneralError] = useState(null);
+  const [loginWithPassword, setLoginWithPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const theme = useTheme();
-  const auth = getAuth();
+  const navigate = useNavigate();
 
-  const submitLoginForm = async () => {
+  const submitLoginForm = async (e) => {
+    e.preventDefault();
     try {
-      await onEmailPasswordSignIn(auth, email, password);
-    } catch (e) {
-      console.log(e);
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
       setGeneralError("Error iniciando sesión");
+      console.log(error.error_description || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitMagicLinkLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: process.env.REACT_APP_MAGIC_LINK_REDIRECT_URL,
+        },
+      });
+      if (error) {
+        throw error;
+      }
+      alert("Encontrarás un link de login en tu mail!");
+    } catch (error) {
+      setGeneralError("Error iniciando sesión");
+      alert(error.error_description || error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -150,39 +78,79 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
           label="Correo Electronico"
           variant="outlined"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setGeneralError(null);
+            setEmail(e.target.value);
+          }}
         />
       </div>
-      <div id="text-field-container">
-        <TextField
-          fullWidth
-          id="password-login"
-          label="Contraseña"
-          type={"password"}
-          variant="outlined"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      {generalError && (
-        <Typography
-          color={theme.palette.error.main}
-          style={{ textAlign: "center" }}
-        >
-          {generalError}
-        </Typography>
+      <Grid container alignItems={"center"} justifyContent={"center"}>
+        <Grid item>
+          <Typography>{"Iniciar sesión con contraseña?"}</Typography>
+        </Grid>
+        <Grid item>
+          <Switch
+            checked={loginWithPassword}
+            onChange={() => setLoginWithPassword(!loginWithPassword)}
+          />
+        </Grid>
+      </Grid>
+      {loginWithPassword && (
+        <>
+          <div id="text-field-container">
+            <TextField
+              fullWidth
+              id="password-login"
+              label="Contraseña"
+              type={"password"}
+              variant="outlined"
+              value={password}
+              onChange={(e) => {
+                setGeneralError(null);
+                setPassword(e.target.value);
+              }}
+            />
+          </div>
+          {generalError && (
+            <Typography
+              color={theme.palette.error.main}
+              style={{ textAlign: "center" }}
+            >
+              {generalError}
+            </Typography>
+          )}
+          <Typography style={{ textAlign: "center" }}>
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => navigate("/forgot-password")}
+              sx={{ fontSize: 16 }}
+            >
+              {"Olvidó su contraseña?"}
+            </Link>
+          </Typography>
+        </>
       )}
+
       <Box sx={{ margin: 3 }} textAlign="center">
         <Button
-          onClick={submitLoginForm}
+          onClick={loginWithPassword ? submitLoginForm : submitMagicLinkLogin}
           variant="contained"
           component="label"
           className="btn btn-primary"
-          disabled={!password || !email}
+          disabled={!email || (!password && loginWithPassword)}
         >
-          Iniciar Sesión
+          {loginWithPassword
+            ? "Iniciar Sesión"
+            : "Iniciar Sesión Con Magic Link"}
         </Button>
       </Box>
+      {loading && (
+        <Box sx={{ margin: 3 }} textAlign="center">
+          <CircularProgress />
+        </Box>
+      )}
+
       <Typography style={{ textAlign: "center" }}>
         <Link
           component="button"
@@ -200,122 +168,14 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
 const AuthButtons = () => {
   const navigate = useNavigate();
   return (
-    <>
-      <Grid item xs={5}>
-        <div id="auth-button-container">
-          <Typography style={{ textAlign: "center", fontSize: 24 }}>
-            {"Iniciar Sesión:"}
-          </Typography>
-          <EmailPasswordLogin goToRegistration={() => navigate("/register")} />
-        </div>
-      </Grid>
-      <Grid xs={12} item />
-      <Grid item xs={5}>
-        <div id="auth-button-container">
-          <Typography style={{ textAlign: "center", fontSize: 24 }}>
-            {"O continuar con tu cuenta de:"}
-          </Typography>
-          <GoogleButton />
-          <FacebookButton />
-        </div>
-      </Grid>
-    </>
-  );
-};
-
-const RegistrationForm = ({ backToLogin }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [selectedFile, setSelectedFile] = useState("");
-  const [generalError, setGeneralError] = useState("");
-  const auth = getAuth();
-  const theme = useTheme();
-
-  const submitForm = async () => {
-    try {
-      await onEmailPasswordSignUp(auth, name, email, password, selectedFile);
-    } catch {
-      setGeneralError("Error registrando usuario");
-    }
-  };
-
-  return (
-    <div id="auth-button-container">
-      <Typography style={{ textAlign: "center", fontSize: 24 }}>
-        {"Registrarse:"}
-      </Typography>
-      <div id="text-field-container">
-        <TextField
-          fullWidth
-          id="name-registration"
-          label="Nombre Completo"
-          variant="outlined"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
-      <div id="text-field-container">
-        <TextField
-          fullWidth
-          id="email-registration"
-          label="Correo Electrónico"
-          variant="outlined"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      <div id="text-field-container">
-        <TextField
-          fullWidth
-          type={"password"}
-          id="password-registration"
-          label="Contraseña"
-          variant="outlined"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <div id="text-field-container">
-        <FileUploader
-          text={"Seleccionar Foto"}
-          onFileSelectSuccess={(file) => setSelectedFile(file)}
-          onFileSelectError={({ error }) => alert(error)}
-          selectedFileName={selectedFile?.name}
-        />
-      </div>
-      {generalError && (
-        <Typography
-          color={theme.palette.error.main}
-          style={{ textAlign: "center" }}
-        >
-          {generalError}
+    <Grid item xs={5}>
+      <div id="auth-button-container">
+        <Typography style={{ textAlign: "center", fontSize: 24 }}>
+          {"Iniciar Sesión:"}
         </Typography>
-      )}
-
-      <Box sx={{ margin: 3 }} textAlign="center">
-        <Button
-          onClick={submitForm}
-          variant="contained"
-          component="label"
-          className="btn btn-primary"
-          disabled={!name || !email || !selectedFile}
-        >
-          Registrarse
-        </Button>
-      </Box>
-
-      <Typography style={{ textAlign: "center" }}>
-        <Link
-          component="button"
-          variant="body2"
-          onClick={backToLogin}
-          sx={{ fontSize: 16 }}
-        >
-          {"Ya está registrado? Iniciar sesión!"}
-        </Link>
-      </Typography>
-    </div>
+        <EmailPasswordLogin goToRegistration={() => navigate("/register")} />
+      </div>
+    </Grid>
   );
 };
 
@@ -365,7 +225,3 @@ export default function Home() {
 
   return isLoggedIn ? <Welcome /> : <AuthForms />;
 }
-
-const styles = {
-  text: { fontSize: 20 },
-};

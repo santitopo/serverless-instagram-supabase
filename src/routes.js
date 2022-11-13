@@ -2,15 +2,19 @@ import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import CustomAppBar from "./components/CustomAppBar";
 import FriendsSearch from "./pages/Friends";
 import Home from "./pages/Home";
-import { useIsLoggedIn } from "./providers/Authentication";
+import { useAuth, useIsLoggedIn } from "./providers/Authentication";
 
 import VerifyEmail from "./pages/VerifyEmail";
 import { useIsEmailVerified } from "./providers/Authentication";
 import RegisterScreen from "./pages/RegisterScreen";
+import ForgotPasswordScreen from "./pages/ForgotPassword";
+import ResetPasswordScreen from "./pages/ResetPassword";
+import CompleteRegistration from "./pages/CompleteRegistration";
 
 export default function Router() {
   const isLoggedIn = useIsLoggedIn();
   const isEmailVerified = useIsEmailVerified();
+  const { isLoading, isProfileCompleted } = useAuth();
 
   return useRoutes([
     {
@@ -18,7 +22,7 @@ export default function Router() {
 
       element: (
         <>
-          <CustomAppBar title={"Serverless Chat"} isLoggedIn={isLoggedIn} />
+          <CustomAppBar title={"InstaOrt"} isLoggedIn={isLoggedIn} />
           <Outlet />
         </>
       ),
@@ -36,17 +40,43 @@ export default function Router() {
         },
         {
           path: "home",
-          element: isEmailVerified ? (
-            <Navigate to="/friends" replace />
-          ) : isLoggedIn ? (
-            <VerifyEmail />
+          element: isLoggedIn ? (
+            isEmailVerified ? (
+              isProfileCompleted ? (
+                <Navigate to="/friends" replace />
+              ) : (
+                <CompleteRegistration />
+              )
+            ) : (
+              <VerifyEmail />
+            )
           ) : (
             <Home />
           ),
         },
         {
+          path: "complete-register",
+          element: <CompleteRegistration />,
+        },
+        {
           path: "register",
           element: <RegisterScreen />,
+        },
+        {
+          path: "forgot-password",
+          element: isLoggedIn ? (
+            <Navigate to="/home" replace />
+          ) : (
+            <ForgotPasswordScreen />
+          ),
+        },
+        {
+          path: "reset-password",
+          element: isLoading ? null : isLoggedIn ? (
+            <ResetPasswordScreen />
+          ) : (
+            <Navigate to="/" />
+          ),
         },
       ],
     },

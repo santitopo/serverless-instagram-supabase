@@ -1,6 +1,5 @@
 import {
   Box,
-  Link,
   Grid,
   Typography,
   TextField,
@@ -12,24 +11,27 @@ import React, { useState } from "react";
 
 import "./Home.css";
 import FileUploader from "../components/FileUploader";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
+import { useAuth } from "../providers/Authentication";
 
-const RegistrationForm = ({ invitationId }) => {
+const RegistrationForm = () => {
+  const theme = useTheme();
+  const navigate = useNavigate();
+
+  const { user } = useAuth();
+  const email = user?.email;
+
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
   const [generalError, setGeneralError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const theme = useTheme();
-  const navigate = useNavigate();
 
   const cleanForm = () => {
     setName("");
     setUsername("");
-    setEmail("");
     setPassword("");
     setSelectedFile("");
     setGeneralError("");
@@ -61,20 +63,20 @@ const RegistrationForm = ({ invitationId }) => {
     try {
       setIsLoading(true);
       const avatarPath = await uploadAvatar();
-      supabase.auth.signUp({
+      const { error } = supabase.auth.updateUser({
         email,
         password,
-        options: {
-          emailRedirectTo: process.env.REACT_APP_MAGIC_LINK_REDIRECT_URL,
-          data: {
-            full_name: name,
-            username,
-            avatar_url: avatarPath,
-          },
+        data: {
+          full_name: name,
+          username,
+          avatar_url: avatarPath,
         },
       });
+      if (error) {
+        throw error;
+      }
       cleanForm();
-      alert("Por favor confirma tu correo para completar el registro!");
+      alert("Registro completado exitosamente!");
     } catch {
       setGeneralError("Error registrando usuario");
     } finally {
@@ -86,7 +88,7 @@ const RegistrationForm = ({ invitationId }) => {
     <Grid item xs={5}>
       <div id="auth-button-container">
         <Typography style={{ textAlign: "center", fontSize: 24 }}>
-          {"Registrarse:"}
+          {"Completar el Registro:"}
         </Typography>
         <div id="text-field-container">
           <TextField
@@ -113,9 +115,8 @@ const RegistrationForm = ({ invitationId }) => {
             id="email-registration"
             label="Correo Electrónico"
             variant="outlined"
-            disabled={!!invitationId}
+            disabled={true}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div id="text-field-container">
@@ -154,9 +155,9 @@ const RegistrationForm = ({ invitationId }) => {
             variant="contained"
             component="label"
             className="btn btn-primary"
-            disabled={!name || !email || !selectedFile}
+            disabled={!name || !selectedFile}
           >
-            Registrarse
+            Completar Registro
           </Button>
         </Box>
         {isLoading && (
@@ -164,26 +165,12 @@ const RegistrationForm = ({ invitationId }) => {
             <CircularProgress />
           </Box>
         )}
-
-        <Typography style={{ textAlign: "center" }}>
-          <Link
-            component="button"
-            variant="body2"
-            onClick={() => navigate("/home")}
-            sx={{ fontSize: 16 }}
-          >
-            {"Ya está registrado? Iniciar sesión!"}
-          </Link>
-        </Typography>
       </div>
     </Grid>
   );
 };
 
-export default function RegisterScreen() {
-  const [searchParams] = useSearchParams();
-  const invitationId = searchParams.get("invitationId");
-
+export default function CompleteRegistration() {
   return (
     <Grid sx={{ paddingY: 20 }} style={{ height: "80vh" }} container>
       <Grid
@@ -194,7 +181,7 @@ export default function RegisterScreen() {
         spacing={3}
         xs={12}
       >
-        <RegistrationForm invitationId={invitationId} />
+        <RegistrationForm />
       </Grid>
     </Grid>
   );
