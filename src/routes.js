@@ -2,16 +2,18 @@ import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import CustomAppBar from "./components/CustomAppBar";
 import FriendsSearch from "./pages/Friends";
 import Home from "./pages/Home";
-import { useIsLoggedIn } from "./providers/Authentication";
+import { useAuth, useIsLoggedIn } from "./providers/Authentication";
 
 import VerifyEmail from "./pages/VerifyEmail";
 import { useIsEmailVerified } from "./providers/Authentication";
 import RegisterScreen from "./pages/RegisterScreen";
 import ForgotPasswordScreen from "./pages/ForgotPassword";
+import ResetPasswordScreen from "./pages/ResetPassword";
 
 export default function Router() {
   const isLoggedIn = useIsLoggedIn();
   const isEmailVerified = useIsEmailVerified();
+  const { isLoading } = useAuth();
 
   return useRoutes([
     {
@@ -51,7 +53,19 @@ export default function Router() {
         },
         {
           path: "forgot-password",
-          element: <ForgotPasswordScreen />,
+          element: isLoggedIn ? (
+            <Navigate to="/home" replace />
+          ) : (
+            <ForgotPasswordScreen />
+          ),
+        },
+        {
+          path: "reset-password",
+          element: isLoading ? null : isLoggedIn ? (
+            <ResetPasswordScreen />
+          ) : (
+            <Navigate to="/" />
+          ),
         },
       ],
     },

@@ -1,6 +1,5 @@
 import {
   Box,
-  Link,
   Grid,
   Typography,
   TextField,
@@ -15,33 +14,36 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 
 const Form = () => {
-  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [generalError, setGeneralError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const theme = useTheme();
   const navigate = useNavigate();
 
   const cleanForm = () => {
-    setEmail("");
+    setPassword("");
+    setPasswordConfirmation("");
     setGeneralError("");
   };
 
   const submitForm = async () => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: process.env.REACT_APP_FORGOT_PASSWORD_LINK_REDIRECT_URL,
+      console.log("password is", password);
+      const { error } = await supabase.auth.updateUser({
+        password,
       });
-      cleanForm();
+
       if (error) {
         throw error;
       }
-      alert(
-        "Por favor resetea tu contraseña con el link que te enviamos a tu correo!"
-      );
+      cleanForm();
+      alert("Contraseña cambiada exitosamente!");
+      navigate("/home");
     } catch (e) {
       console.log(e.message);
-      setGeneralError("Error recuperando contraseña");
+      setGeneralError("Error cambiando su contraseña");
     } finally {
       setIsLoading(false);
     }
@@ -51,17 +53,29 @@ const Form = () => {
     <Grid item xs={5}>
       <div id="auth-button-container">
         <Typography style={{ textAlign: "center", fontSize: 24 }}>
-          {"Recupere su contraseña:"}
+          {"Cambiar contraseña:"}
         </Typography>
 
         <div id="text-field-container">
           <TextField
             fullWidth
             id="email-registration"
-            label="Correo Electrónico"
+            label="Nueva Contraseña"
             variant="outlined"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type={"password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div id="text-field-container">
+          <TextField
+            fullWidth
+            id="email-registration"
+            label="Confirmar contraseña"
+            variant="outlined"
+            type={"password"}
+            value={passwordConfirmation}
+            onChange={(e) => setPasswordConfirmation(e.target.value)}
           />
         </div>
 
@@ -80,9 +94,13 @@ const Form = () => {
             variant="contained"
             component="label"
             className="btn btn-primary"
-            disabled={!email}
+            disabled={
+              !password ||
+              !passwordConfirmation ||
+              password !== passwordConfirmation
+            }
           >
-            Recuperar Contraseña
+            Cambiar Contraseña
           </Button>
         </Box>
         {isLoading && (
@@ -90,23 +108,12 @@ const Form = () => {
             <CircularProgress />
           </Box>
         )}
-
-        <Typography style={{ textAlign: "center" }}>
-          <Link
-            component="button"
-            variant="body2"
-            onClick={() => navigate("/home")}
-            sx={{ fontSize: 16 }}
-          >
-            {"Volver a inicio de sesión"}
-          </Link>
-        </Typography>
       </div>
     </Grid>
   );
 };
 
-export default function ForgotPasswordScreen() {
+export default function ResetPasswordScreen() {
   return (
     <Grid sx={{ paddingY: 20 }} style={{ height: "80vh" }} container>
       <Grid

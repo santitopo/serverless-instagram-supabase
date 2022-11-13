@@ -40,7 +40,7 @@ const EmailPasswordLogin = ({ goToRegistration }) => {
       }
     } catch (error) {
       setGeneralError("Error iniciando sesión");
-      alert(error.error_description || error.message);
+      console.log(error.error_description || error.message);
     } finally {
       setLoading(false);
     }
