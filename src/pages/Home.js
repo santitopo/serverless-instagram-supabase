@@ -209,16 +209,16 @@ const Welcome = () => {
       rowSpacing={3}
     >
       <Grid item xs={12}>
-      <Typography style={{ textAlign: "center" }}>
-            <Link
-              component="button"
-              variant="body2"
-              onClick={() => navigate("/create-post")}
-              sx={{ fontSize: 16 }}
-            >
-              {"Crear post"}
-            </Link>
-          </Typography>
+        <Typography style={{ textAlign: "center" }}>
+          <Link
+            component="button"
+            variant="body2"
+            onClick={() => navigate("/create-post")}
+            sx={{ fontSize: 16 }}
+          >
+            {"Crear post"} //TODO: see why this button is not showing up
+          </Link>
+        </Typography>
         <Typography fontSize={24} style={{ textAlign: "center" }}>
           {`Bienvenido ${user.displayName},`}
         </Typography>

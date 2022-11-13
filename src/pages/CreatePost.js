@@ -32,26 +32,6 @@ const CreatePost = () => {
     setGeneralError("");
   };
 
-//   const uploadPostImage = async () => {
-//     try {
-//       const fileExtension = selectedFile.name.split(".").pop();
-//       const fileName = `${Math.random()}.${fileExtension}`;
-//       const filePath = `posts/${fileName}`;
-
-//       let { error: uploadError } = await supabase.storage
-//         .from("posts")
-//         .upload(filePath, selectedFile);
-//       if (uploadError) {
-//         throw uploadError;
-//       }
-//       const { data } = supabase.storage.from("posts").getPublicUrl(filePath);
-//       console.log("Post uploaded! :)", data.publicUrl);
-//       return data.publicUrl;
-//     } catch (error) {
-//       alert(error.message);
-//     }
-//   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
