@@ -11,7 +11,14 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     authenticated(state, action) {
-      state.user = action.payload;
+      const userChunk = action.payload;
+      state.user = {
+        email: userChunk.email,
+        email_confirmed_at: userChunk.email_confirmed_at,
+        full_name: userChunk.user_metadata.full_name,
+        username: userChunk.user_metadata.username,
+        avatar_url: userChunk.user_metadata.avatar_url,
+      };
       state.isLoading = false;
       state.error = null;
     },

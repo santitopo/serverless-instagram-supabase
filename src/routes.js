@@ -9,11 +9,12 @@ import { useIsEmailVerified } from "./providers/Authentication";
 import RegisterScreen from "./pages/RegisterScreen";
 import ForgotPasswordScreen from "./pages/ForgotPassword";
 import ResetPasswordScreen from "./pages/ResetPassword";
+import CompleteRegistration from "./pages/CompleteRegistration";
 
 export default function Router() {
   const isLoggedIn = useIsLoggedIn();
   const isEmailVerified = useIsEmailVerified();
-  const { isLoading } = useAuth();
+  const { isLoading, isProfileCompleted } = useAuth();
 
   return useRoutes([
     {
@@ -39,13 +40,23 @@ export default function Router() {
         },
         {
           path: "home",
-          element: isEmailVerified ? (
-            <Navigate to="/friends" replace />
-          ) : isLoggedIn ? (
-            <VerifyEmail />
+          element: isLoggedIn ? (
+            isEmailVerified ? (
+              isProfileCompleted ? (
+                <Navigate to="/friends" replace />
+              ) : (
+                <CompleteRegistration />
+              )
+            ) : (
+              <VerifyEmail />
+            )
           ) : (
             <Home />
           ),
+        },
+        {
+          path: "complete-register",
+          element: <CompleteRegistration />,
         },
         {
           path: "register",

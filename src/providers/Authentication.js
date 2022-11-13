@@ -50,8 +50,11 @@ export const useAuth = () => {
   const isLoading = useSelector(selectIsLoading);
   return {
     isLoggedIn: !!user,
+    isProfileCompleted:
+      user && user.username && user.full_name && user.avatar_url,
     isLoading,
     isEmailVerified: user && user.email_confirmed_at,
+    user,
   };
 };
 
