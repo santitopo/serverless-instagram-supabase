@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 
-import "./Home.css";
+import "./CreatePost.css";
 import FileUploader from "../components/FileUploader";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
@@ -21,6 +21,7 @@ const CreatePost = () => {
 
   const { user } = useAuth();
   const email = user?.email;
+  const full_name = user?.full_name;
   const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
   const [generalError, setGeneralError] = useState("");
@@ -32,26 +33,46 @@ const CreatePost = () => {
     setGeneralError("");
   };
 
+  const uploadPostImage = async () => {
+    try {
+      const fileExt = selectedFile.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`; //TODO: Change to images instead of avatars
+
+      let { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, selectedFile);
+      if (uploadError) {
+        throw uploadError;
+      }
+      const { data } = await supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+      console.log("finished! :)", data.publicUrl);
+      return data.publicUrl;
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setGeneralError("");
-    const fileExt = selectedFile.name.split(".").pop();
-    const image = `${Math.random()}.${fileExt}`;
-
+    const imagePath = await uploadPostImage();
     const { error } = await supabase
       .from("posts")
-      .insert({ description, image, email });
+      .insert({ description, image: imagePath, email, full_name });
     if (error) {
       setGeneralError(error.message);
     } else {
       cleanPostForm();
-      navigate("/friends");
+      navigate("/home");
     }
     setIsLoading(false);
   };
 
-return (
+  return (
     <Grid item xs={5}>
       <div id="auth-button-container">
         <Typography style={{ textAlign: "center", fontSize: 24 }}>

@@ -11,6 +11,7 @@ import ForgotPasswordScreen from "./pages/ForgotPassword";
 import ResetPasswordScreen from "./pages/ResetPassword";
 import CompleteRegistration from "./pages/CompleteRegistration";
 import CreatePost from "./pages/CreatePost";
+import Feed from "./pages/Feed";
 
 export default function Router() {
   const isLoggedIn = useIsLoggedIn();
@@ -94,6 +95,15 @@ export default function Router() {
           ) : (
             <CreatePost/> //TODO: see why it only goes to default route (home) even if previous elements are true
           ),
+        },
+        {
+          path: "feed",
+          element:
+            !isEmailVerified || !isLoggedIn ? (
+              <Feed />
+            ) : (
+              <Feed />
+            ),
         },
       ],
     },
