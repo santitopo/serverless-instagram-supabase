@@ -1,6 +1,5 @@
 import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import CustomAppBar from "./components/CustomAppBar";
-import FriendsSearch from "./pages/Friends";
 import Home from "./pages/Home";
 import { useAuth, useIsLoggedIn } from "./providers/Authentication";
 
@@ -100,7 +99,7 @@ export default function Router() {
           path: "feed",
           element:
             !isEmailVerified || !isLoggedIn ? (
-              <Feed />
+              <Navigate to="/home" replace />
             ) : (
               <Feed />
             ),

@@ -71,7 +71,7 @@ const LikePost = ({ postId }) => {
     }
     setIsLoading(false);
   };
-
+  //TODO: show unlike button red
   return (
     <div className="like-container">
       {error && <Typography color="error">{error}</Typography>}
