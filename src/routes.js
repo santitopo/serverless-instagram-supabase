@@ -32,12 +32,12 @@ export default function Router() {
         { path: "/", element: <Navigate to="/home" replace /> },
         { path: "*", element: <Navigate to="/home" replace /> },
         {
-          path: "friends",
+          path: "feed",
           element:
             !isEmailVerified || !isLoggedIn ? (
               <Navigate to="/home" replace />
             ) : (
-              <FriendsSearch />
+              <Feed />
             ),
         },
         {
@@ -45,7 +45,7 @@ export default function Router() {
           element: isLoggedIn ? (
             isEmailVerified ? (
               isProfileCompleted ? (
-                <Navigate to="/friends" replace />
+                <Navigate to="/feed" replace />
               ) : (
                 <CompleteRegistration />
               )
