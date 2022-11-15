@@ -161,7 +161,7 @@ const ShowComments = ({ postId }) => {
     } else if (error) {
       return <Typography color="error">{error}</Typography>;
     } else if (comments.length === 0) {
-      return <Typography>No hay comentarios</Typography>;
+      return <Typography>Aún no hay comentarios...</Typography>;
     } else {
       return comments.map((comment, index) => (
         <Typography key={index}>
@@ -177,7 +177,8 @@ const ShowComments = ({ postId }) => {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <div className="comments">{renderComments()}</div>
+        
+        <div class="row container">{renderComments()}</div>
       )}
     </div>
   );

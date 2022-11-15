@@ -27,3 +27,17 @@
     margin: auto;
     width: 100%;
 }
+
+  .comments-container {
+    border-radius: 12px;
+    margin: auto;
+    width: 50%;
+    border: 3px solid;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .container {
+    overflow-y: scroll;
+    height: 10vh;
+  }
