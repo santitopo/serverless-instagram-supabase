@@ -177,8 +177,57 @@ const ShowComments = ({ postId }) => {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        
         <div class="row container">{renderComments()}</div>
+      )}
+    </div>
+  );
+};
+
+const DeletePost = ({ postId }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleDelete = async () => {
+    setIsLoading(true);
+    const deletePostLikes = async () => {
+      const { error } = await supabase
+        .from("likes")
+        .delete()
+        .eq("post_id", postId);
+      if (error) {
+        setError(error.message);
+      }
+    };
+    const deletePostComments = async () => {
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .eq("post_id", postId);
+      if (error) {
+        setError(error.message);
+      }
+    };
+    const deletePost = async () => {
+      const { error } = await supabase.from("posts").delete().eq("id", postId);
+      if (error) {
+        setError(error.message);
+      }
+    };
+    await deletePostLikes();
+    await deletePostComments();
+    await deletePost();
+    setIsLoading(false);
+  };
+
+  return (
+    <div className="delete-container">
+      {error && <Typography color="error">{error}</Typography>}
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <Button variant="outlined" color="secondary" onClick={handleDelete}>
+          Eliminar
+        </Button>
       )}
     </div>
   );
@@ -209,6 +258,7 @@ const ShowFeed = ({ email }) => {
       {error && <Typography color="error">{error}</Typography>}
       {posts.map((post) => (
         <div className="post-container">
+          {post.email === email && <DeletePost postId={post.id} />}
           <Typography
             sx={{ mt: 4, mb: 2 }}
             variant="h6"
@@ -226,7 +276,6 @@ const ShowFeed = ({ email }) => {
           />
           <LikePost postId={post.id} />
           <AddComment postId={post.id} />
-
           <ShowComments postId={post.id} />
         </div>
       ))}
