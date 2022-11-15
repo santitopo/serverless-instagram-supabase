@@ -26,6 +26,22 @@ const LikePost = ({ postId }) => {
     fetchLikes();
   }, [postId]);
 
+  useEffect(() => {
+    const fetchLiked = async () => {
+      const { data, error } = await supabase
+        .from("likes")
+        .select("id")
+        .eq("post_id", postId)
+        .eq("email", user.email);
+      if (error) {
+        setError(error.message);
+      } else {
+        setLiked(data.length > 0);
+      }
+    };
+    fetchLiked();
+  }, [postId, user.email]);
+
   const handleLike = async () => {
     setIsLoading(true);
     const { error } = await supabase
@@ -96,7 +112,7 @@ const AddComment = ({ postId }) => {
     }
     setIsLoading(false);
   };
-
+  //TODO: See how to auto refresh comments
   return (
     <div className="comment-container">
       {error && <Typography color="error">{error}</Typography>}
@@ -139,6 +155,21 @@ const ShowComments = ({ postId }) => {
     fetchComments();
   }, [postId]);
 
+  const renderComments = () => {
+    if (isLoading) {
+      return <CircularProgress />;
+    } else if (error) {
+      return <Typography color="error">{error}</Typography>;
+    } else if (comments.length === 0) {
+      return <Typography>No hay comentarios</Typography>;
+    } else {
+      return comments.map((comment, index) => (
+        <Typography key={index}>
+          {comment.full_name}: {comment.comment}
+        </Typography>
+      ));
+    }
+  };
   return (
     <div className="comments-container">
       <Typography variant="h6">Comentarios</Typography>
@@ -146,18 +177,14 @@ const ShowComments = ({ postId }) => {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        comments.map((comment) => (
-          <div className="comment">
-            <Typography variant="h6">{comment.full_name}</Typography>
-            <Typography>{comment.comment}</Typography>
-          </div>
-        ))
+        <div className="comments">{renderComments()}</div>
       )}
     </div>
   );
 };
 
 const ShowFeed = ({ email }) => {
+  //TODO: See if we don't need to show own users posts and filter by email
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState("");
 
