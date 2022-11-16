@@ -1,5 +1,5 @@
 import "./Feed.css";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Typography, Button, CircularProgress, TextField } from "@mui/material";
 import { supabase } from "../supabase";
 import { useAuth } from "../providers/Authentication";
@@ -91,7 +91,38 @@ const LikePost = ({ postId }) => {
   );
 };
 
-const AddComment = ({ postId }) => {
+const Comments = ({ postId }) => {
+  const [comments, setComments] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const fetchComments = useCallback(async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from("comments")
+      .select("comment, full_name")
+      .eq("post_id", postId);
+    if (error) {
+      setError(error.message);
+    } else {
+      setComments(data);
+    }
+    setIsLoading(false);
+  }, [postId]);
+
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  return (
+    <>
+      <AddComment postId={postId} onUpdate={fetchComments} />
+      <ShowComments comments={comments} isLoading={isLoading} error={error} />
+    </>
+  );
+};
+
+const AddComment = ({ postId, onUpdate }) => {
   const { user } = useAuth();
   const [comment, setComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -109,6 +140,7 @@ const AddComment = ({ postId }) => {
       setError(error.message);
     } else {
       setComment("");
+      onUpdate();
     }
     setIsLoading(false);
   };
@@ -133,28 +165,7 @@ const AddComment = ({ postId }) => {
   );
 };
 
-const ShowComments = ({ postId }) => {
-  const [comments, setComments] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchComments = async () => {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from("comments")
-        .select("comment, full_name")
-        .eq("post_id", postId);
-      if (error) {
-        setError(error.message);
-      } else {
-        setComments(data);
-      }
-      setIsLoading(false);
-    };
-    fetchComments();
-  }, [postId]);
-
+const ShowComments = ({ comments, isLoading, error }) => {
   const renderComments = () => {
     if (isLoading) {
       return <CircularProgress />;
@@ -275,8 +286,7 @@ const ShowFeed = ({ email }) => {
             style={{ width: "40%", height: "auto" }}
           />
           <LikePost postId={post.id} />
-          <AddComment postId={post.id} />
-          <ShowComments postId={post.id} />
+          <Comments postId={post.id} />
         </div>
       ))}
     </div>
