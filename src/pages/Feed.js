@@ -144,7 +144,6 @@ const AddComment = ({ postId, onUpdate }) => {
     }
     setIsLoading(false);
   };
-  //TODO: See how to auto refresh comments
   return (
     <div className="comment-container">
       {error && <Typography color="error">{error}</Typography>}
