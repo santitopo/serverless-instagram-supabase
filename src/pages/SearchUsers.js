@@ -20,7 +20,19 @@ const ShowSearchUsers = () => {
       if (error) {
         setError(error.message);
       } else {
-        setUsers(data);
+        if (data.length === 0) {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .ilike("full_name", `%${search}%`);
+          if (error) {
+            setError(error.message);
+          } else {
+            setUsers(data);
+          }
+        } else {
+          setUsers(data);
+        }
       }
       setLoading(false);
     };
@@ -44,10 +56,13 @@ const ShowSearchUsers = () => {
       {loading && <CircularProgress />}
       {error && <Typography color="error">{error}</Typography>}
       {users.length === 0 && !loading && (
-        <Typography color="textSecondary">No hay usuarios que coincidan con la busqueda.</Typography>
+        <Typography color="textSecondary">
+          No hay usuarios que coincidan con la busqueda.
+        </Typography>
       )}
       {users.map((user) => (
         <div key={user.id}>
+          <Typography variant="h5">{user.full_name}</Typography>
           <Typography>{user.username}</Typography>
           <Link to={`/profile?username=${user?.username}`}>
             <img
