@@ -91,6 +91,66 @@ const LikePost = ({ postId }) => {
   );
 };
 
+const ShowUsersWhoLiked = ({ postId }) => {
+  const [showResults, setShowResults] = React.useState(false);
+  const onClick = () => setShowResults(true);
+  const onClickHide = () => setShowResults(false);
+
+  return (
+    <div>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={showResults ? onClickHide : onClick}
+      >
+        {showResults ? "Ocultar Likes" : "Mostrar Likes"}
+      </Button>
+      {showResults ? <ListUsersWhoLiked postId={postId} /> : null}
+    </div>
+  );
+};
+
+const ListUsersWhoLiked = ({ postId }) => {
+  const [usersLiked, setUsersLiked] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchUsersLiked = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("likes")
+        .select("email")
+        .eq("post_id", postId);
+      if (error) {
+        setError(error.message);
+      } else {
+        setUsersLiked(data);
+      }
+      setIsLoading(false);
+    };
+    fetchUsersLiked();
+  }, [postId]);
+
+  return (
+    <>
+      {error && <Typography color="error">{error}</Typography>}
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <div className="users-liked-container">
+          {usersLiked.length > 0 && (
+            <Typography>Personas a las que le gusto esto:</Typography>
+          )}
+          {usersLiked.map((user) => (
+            <Typography key={user.email}>{user.email}</Typography>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
+
 const Comments = ({ postId }) => {
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -286,6 +346,7 @@ const ShowFeed = ({ email }) => {
               style={{ width: "40%", height: "auto" }}
             />
             <LikePost postId={post.id} />
+            <ShowUsersWhoLiked postId={post.id} />
             <Comments postId={post.id} />
           </div>
         </div>
