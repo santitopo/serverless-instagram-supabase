@@ -74,6 +74,9 @@ const ShowUserPosts = ({ username }) => {
       {loading && <CircularProgress />}
       {error && <Typography color="error">{error}</Typography>}
       <Typography variant="h5">Posts</Typography>
+      {posts.length === 0 && !loading && (
+        <Typography color="textSecondary">Aun no subio nada :(</Typography>
+      )}
       {posts.map((post) => (
         <div key={post.id}>
           <Typography variant="h5">{post.description}</Typography>
