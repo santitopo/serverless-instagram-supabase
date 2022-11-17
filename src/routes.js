@@ -28,23 +28,14 @@ export default function Router() {
         </>
       ),
       children: [
-        { path: "/", element: <Navigate to="/home" replace /> },
-        { path: "*", element: <Navigate to="/home" replace /> },
+        { path: "/", element: <Navigate to="/feed" replace /> },
+        { path: "*", element: <Navigate to="/feed" replace /> },
         {
           path: "feed",
-          element:
-            !isEmailVerified || !isLoggedIn ? (
-              <Navigate to="/home" replace />
-            ) : (
-              <Feed />
-            ),
-        },
-        {
-          path: "home",
           element: isLoggedIn ? (
             isEmailVerified ? (
               isProfileCompleted ? (
-                <Navigate to="/feed" replace />
+                <Feed />
               ) : (
                 <CompleteRegistration />
               )
@@ -66,7 +57,7 @@ export default function Router() {
         {
           path: "forgot-password",
           element: isLoggedIn ? (
-            <Navigate to="/home" replace />
+            <Navigate to="/feed" replace />
           ) : (
             <ForgotPasswordScreen />
           ),
@@ -76,12 +67,12 @@ export default function Router() {
           element: isLoading ? null : isLoggedIn ? (
             <ResetPasswordScreen />
           ) : (
-            <Navigate to="/" />
+            <Navigate to="/feed" />
           ),
         },
         {
           path: "create-post",
-          element: isLoggedIn ? (
+          element: isLoading ? null : isLoggedIn ? (
             isEmailVerified ? (
               isProfileCompleted ? (
                 <CreatePost />
@@ -92,17 +83,8 @@ export default function Router() {
               <Navigate to="/verify-email" replace />
             )
           ) : (
-            <CreatePost/> //TODO: see why it only goes to default route (home) even if previous elements are true
+            <Navigate to="/feed" />
           ),
-        },
-        {
-          path: "feed",
-          element:
-            !isEmailVerified || !isLoggedIn ? (
-              <Navigate to="/home" replace />
-            ) : (
-              <Feed />
-            ),
         },
       ],
     },

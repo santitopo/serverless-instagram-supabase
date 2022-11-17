@@ -188,7 +188,7 @@ const ShowComments = ({ comments, isLoading, error }) => {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <div class="row container">{renderComments()}</div>
+        <div className="row container">{renderComments()}</div>
       )}
     </div>
   );
