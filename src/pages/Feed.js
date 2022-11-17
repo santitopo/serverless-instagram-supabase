@@ -71,7 +71,6 @@ const LikePost = ({ postId }) => {
     }
     setIsLoading(false);
   };
-  //TODO: show unlike button red
   return (
     <div className="like-container">
       {error && <Typography color="error">{error}</Typography>}
@@ -93,6 +92,10 @@ const LikePost = ({ postId }) => {
 
 const ShowUsersWhoLiked = ({ postId }) => {
   const [showResults, setShowResults] = React.useState(false);
+  useEffect(() => {
+    setShowResults(false);
+  }, [postId]);
+
   const onClick = () => setShowResults(true);
   const onClickHide = () => setShowResults(false);
 
@@ -125,7 +128,11 @@ const ListUsersWhoLiked = ({ postId }) => {
       if (error) {
         setError(error.message);
       } else {
-        setUsersLiked(data);
+        if (data.length > 0) {
+          setUsersLiked(data);
+        } else {
+          setUsersLiked([]);
+        }
       }
       setIsLoading(false);
     };
@@ -141,6 +148,9 @@ const ListUsersWhoLiked = ({ postId }) => {
         <div className="users-liked-container">
           {usersLiked.length > 0 && (
             <Typography>Personas a las que le gusto esto:</Typography>
+          )}
+          {usersLiked.length === 0 && (
+            <Typography>Nadie le ha dado like a esto.</Typography>
           )}
           {usersLiked.map((user) => (
             <Typography key={user.email}>{user.email}</Typography>
