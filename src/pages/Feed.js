@@ -268,25 +268,27 @@ const ShowFeed = ({ email }) => {
     <div className="feed-container">
       {error && <Typography color="error">{error}</Typography>}
       {posts.map((post) => (
-        <div className="post-container">
-          {post.email === email && <DeletePost postId={post.id} />}
-          <Typography
-            sx={{ mt: 4, mb: 2 }}
-            variant="h6"
-            component="div"
-          ></Typography>
-          <Typography variant="h6">{post.full_name}</Typography>
-          <Typography variant="body2">{post.description}</Typography>
-          <Typography variant="body2">{`Subido: ${
-            post.created_at?.split("T")[0] //TODO: Change how we handle uploaded time
-          }`}</Typography>
-          <img
-            src={post.image}
-            alt="post"
-            style={{ width: "40%", height: "auto" }}
-          />
-          <LikePost postId={post.id} />
-          <Comments postId={post.id} />
+        <div key={post.id}>
+          <div className="post-container">
+            {post.email === email && <DeletePost postId={post.id} />}
+            <Typography
+              sx={{ mt: 4, mb: 2 }}
+              variant="h6"
+              component="div"
+            ></Typography>
+            <Typography variant="h6">{post.full_name}</Typography>
+            <Typography variant="body2">{post.description}</Typography>
+            <Typography variant="body2">{`Subido: ${
+              post.created_at?.split("T")[0] //TODO: Change how we handle uploaded time
+            }`}</Typography>
+            <img
+              src={post.image}
+              alt="post"
+              style={{ width: "40%", height: "auto" }}
+            />
+            <LikePost postId={post.id} />
+            <Comments postId={post.id} />
+          </div>
         </div>
       ))}
     </div>
