@@ -46,6 +46,17 @@ const CustomAppBar = ({ title }) => {
         >
           {title}
         </Typography>
+        {isLoggedIn && (
+          <Typography style={{ textAlign: "center", paddingLeft: "10px" }}>
+            <Button
+              style={{ backgroundColor: "white", paddingLeft: "10px" }}
+              onClick={() => navigate("/search-users")}
+              sx={{ fontSize: 16 }}
+            >
+              {"Buscar Usuarios"}
+            </Button>
+          </Typography>
+        )}
 
         {isLoggedIn && (
           <Typography style={{ textAlign: "center", paddingLeft: "10px" }}>
@@ -69,6 +80,19 @@ const CustomAppBar = ({ title }) => {
             {loggedInUser?.displayName
               ? `Bienvenido, ${loggedInUser?.displayName}`
               : "Bienvenido!"}
+          </Typography>
+        )}
+        {isLoggedIn && (
+          <Typography style={{ textAlign: "center", paddingLeft: "10px" }}>
+            <Button
+              style={{ backgroundColor: "white", paddingLeft: "10px" }}
+              onClick={() =>
+                navigate(`/profile?username=${loggedInUser?.username}`)
+              }
+              sx={{ fontSize: 16 }}
+            >
+              {"Mi Perfil"}
+            </Button>
           </Typography>
         )}
         {isLoggedIn && (

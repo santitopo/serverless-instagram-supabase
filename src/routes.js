@@ -11,6 +11,8 @@ import ResetPasswordScreen from "./pages/ResetPassword";
 import CompleteRegistration from "./pages/CompleteRegistration";
 import CreatePost from "./pages/CreatePost";
 import Feed from "./pages/Feed";
+import Profile from "./pages/Profile";
+import SearchUsers from "./pages/SearchUsers";
 
 export default function Router() {
   const isLoggedIn = useIsLoggedIn();
@@ -76,6 +78,38 @@ export default function Router() {
             isEmailVerified ? (
               isProfileCompleted ? (
                 <CreatePost />
+              ) : (
+                <Navigate to="/complete-register" replace />
+              )
+            ) : (
+              <Navigate to="/verify-email" replace />
+            )
+          ) : (
+            <Navigate to="/feed" />
+          ),
+        },
+        {
+          path: "profile",
+          element: isLoading ? null : isLoggedIn ? (
+            isEmailVerified ? (
+              isProfileCompleted ? (
+                <Profile />
+              ) : (
+                <Navigate to="/complete-register" replace />
+              )
+            ) : (
+              <Navigate to="/verify-email" replace />
+            )
+          ) : (
+            <Navigate to="/feed" />
+          ),
+        },
+        {
+          path: "search-users",
+          element: isLoading ? null : isLoggedIn ? (
+            isEmailVerified ? (
+              isProfileCompleted ? (
+                <SearchUsers />
               ) : (
                 <Navigate to="/complete-register" replace />
               )

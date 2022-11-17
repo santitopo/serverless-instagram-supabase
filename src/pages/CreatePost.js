@@ -22,6 +22,7 @@ const CreatePost = () => {
   const { user } = useAuth();
   const email = user?.email;
   const full_name = user?.full_name;
+  const username = user?.username;
   const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
   const [generalError, setGeneralError] = useState("");
@@ -62,7 +63,7 @@ const CreatePost = () => {
     const imagePath = await uploadPostImage();
     const { error } = await supabase
       .from("posts")
-      .insert({ description, image: imagePath, email, full_name });
+      .insert({ description, image: imagePath, email, full_name, username });
     if (error) {
       setGeneralError(error.message);
     } else {
