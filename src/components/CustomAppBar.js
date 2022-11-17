@@ -77,8 +77,8 @@ const CustomAppBar = ({ title }) => {
             sx={{ mr: 1 }}
             noWrap
           >
-            {loggedInUser?.displayName
-              ? `Bienvenido, ${loggedInUser?.displayName}`
+            {loggedInUser?.full_name
+              ? `Bienvenido, ${loggedInUser?.full_name}`
               : "Bienvenido!"}
           </Typography>
         )}
