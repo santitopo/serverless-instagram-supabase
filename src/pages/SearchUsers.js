@@ -52,7 +52,7 @@ const ShowSearchUsers = () => {
           <Link to={`/profile?username=${user?.username}`}>
             <img
               src={user.avatar_url}
-              alt="post"
+              alt="No hay imagen"
               style={{ width: "10%", height: "auto" }}
             />
           </Link>

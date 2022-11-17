@@ -37,7 +37,7 @@ const ShowUserProfile = ({ username }) => {
           <Typography>{user.username}</Typography>
           <img
             src={user.avatar_url}
-            alt="post"
+            alt="No hay imagen"
             style={{ width: "10%", height: "auto" }}
           />
         </div>
@@ -82,7 +82,7 @@ const ShowUserPosts = ({ username }) => {
           <Typography variant="h5">{post.description}</Typography>
           <img
             src={post.image}
-            alt="post"
+            alt="No se encontro la imagen"
             style={{ width: "10%", height: "auto" }}
           />
         </div>

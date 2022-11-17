@@ -282,7 +282,7 @@ const ShowFeed = ({ email }) => {
             }`}</Typography>
             <img
               src={post.image}
-              alt="post"
+              alt="No se pudo cargar la imagen"
               style={{ width: "40%", height: "auto" }}
             />
             <LikePost postId={post.id} />
