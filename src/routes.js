@@ -1,6 +1,5 @@
 import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import CustomAppBar from "./components/CustomAppBar";
-import FriendsSearch from "./pages/Friends";
 import Home from "./pages/Home";
 import { useAuth, useIsLoggedIn } from "./providers/Authentication";
 
@@ -10,6 +9,10 @@ import RegisterScreen from "./pages/RegisterScreen";
 import ForgotPasswordScreen from "./pages/ForgotPassword";
 import ResetPasswordScreen from "./pages/ResetPassword";
 import CompleteRegistration from "./pages/CompleteRegistration";
+import CreatePost from "./pages/CreatePost";
+import Feed from "./pages/Feed";
+import Profile from "./pages/Profile";
+import SearchUsers from "./pages/SearchUsers";
 
 export default function Router() {
   const isLoggedIn = useIsLoggedIn();
@@ -27,23 +30,14 @@ export default function Router() {
         </>
       ),
       children: [
-        { path: "/", element: <Navigate to="/home" replace /> },
-        { path: "*", element: <Navigate to="/home" replace /> },
+        { path: "/", element: <Navigate to="/feed" replace /> },
+        { path: "*", element: <Navigate to="/feed" replace /> },
         {
-          path: "friends",
-          element:
-            !isEmailVerified || !isLoggedIn ? (
-              <Navigate to="/home" replace />
-            ) : (
-              <FriendsSearch />
-            ),
-        },
-        {
-          path: "home",
+          path: "feed",
           element: isLoggedIn ? (
             isEmailVerified ? (
               isProfileCompleted ? (
-                <Navigate to="/friends" replace />
+                <Feed />
               ) : (
                 <CompleteRegistration />
               )
@@ -65,7 +59,7 @@ export default function Router() {
         {
           path: "forgot-password",
           element: isLoggedIn ? (
-            <Navigate to="/home" replace />
+            <Navigate to="/feed" replace />
           ) : (
             <ForgotPasswordScreen />
           ),
@@ -75,7 +69,55 @@ export default function Router() {
           element: isLoading ? null : isLoggedIn ? (
             <ResetPasswordScreen />
           ) : (
-            <Navigate to="/" />
+            <Navigate to="/feed" />
+          ),
+        },
+        {
+          path: "create-post",
+          element: isLoading ? null : isLoggedIn ? (
+            isEmailVerified ? (
+              isProfileCompleted ? (
+                <CreatePost />
+              ) : (
+                <Navigate to="/complete-register" replace />
+              )
+            ) : (
+              <Navigate to="/verify-email" replace />
+            )
+          ) : (
+            <Navigate to="/feed" />
+          ),
+        },
+        {
+          path: "profile",
+          element: isLoading ? null : isLoggedIn ? (
+            isEmailVerified ? (
+              isProfileCompleted ? (
+                <Profile />
+              ) : (
+                <Navigate to="/complete-register" replace />
+              )
+            ) : (
+              <Navigate to="/verify-email" replace />
+            )
+          ) : (
+            <Navigate to="/feed" />
+          ),
+        },
+        {
+          path: "search-users",
+          element: isLoading ? null : isLoggedIn ? (
+            isEmailVerified ? (
+              isProfileCompleted ? (
+                <SearchUsers />
+              ) : (
+                <Navigate to="/complete-register" replace />
+              )
+            ) : (
+              <Navigate to="/verify-email" replace />
+            )
+          ) : (
+            <Navigate to="/feed" />
           ),
         },
       ],

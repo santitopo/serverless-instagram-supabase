@@ -1,0 +1,35 @@
+  .post-container {
+    border-radius: 12px;
+    margin: auto;
+    width: 50%;
+    border: 3px solid;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .feed-container {
+    border-radius: 12px;
+    margin: auto;
+    width: 100%;
+}
+
+  .comment-container {
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .comments-container {
+    border-radius: 12px;
+    margin: auto;
+    width: 50%;
+    border: 3px solid;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .container {
+    overflow-y: scroll;
+    height: 10vh;
+  }
