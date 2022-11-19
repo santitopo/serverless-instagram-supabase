@@ -33,3 +33,9 @@
     overflow-y: scroll;
     height: 10vh;
   }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+  }

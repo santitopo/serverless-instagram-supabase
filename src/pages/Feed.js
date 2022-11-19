@@ -317,50 +317,101 @@ const ShowFeed = ({ email }) => {
   //TODO: See if we don't need to show own users posts and filter by email
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasLess, setHasLess] = useState(false);
+
+  const fetchPosts = useCallback(async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from("posts")
+      .select("id, created_at, email, full_name, image, description")
+      .order("created_at", { ascending: false })
+      .range(page * 5, page * 5 + 4);
+    if (error) {
+      setError(error.message);
+    } else {
+      setPosts(data);
+      if (data.length < 5) {
+        setHasMore(false);
+      }else {
+        setHasMore(true);
+      }
+    }
+    setIsLoading(false);
+  }, [page]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const { data, error } = await supabase
-        .from("posts")
-        .select("id, created_at, email, full_name, image, description")
-        .order("created_at", { ascending: false });
-      if (error) {
-        setError(error.message);
-      } else {
-        setPosts(data);
-      }
-    };
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
+
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
+    setHasLess(true);
+  };
+
+  const handleLoadLess = () => {
+    setPage((prevPage) => prevPage - 1);
+    if (page === 1) {
+      setHasLess(false);
+    }
+  };
 
   return (
     <div className="feed-container">
       {error && <Typography color="error">{error}</Typography>}
-      {posts.map((post) => (
-        <div key={post.id}>
-          <div className="post-container">
-            {post.email === email && <DeletePost postId={post.id} />}
-            <Typography
-              sx={{ mt: 4, mb: 2 }}
-              variant="h6"
-              component="div"
-            ></Typography>
-            <Typography variant="h6">{post.full_name}</Typography>
-            <Typography variant="body2">{post.description}</Typography>
-            <Typography variant="body2">{`Subido: ${
-              post.created_at?.split("T")[0] //TODO: Change how we handle uploaded time
-            }`}</Typography>
-            <img
-              src={post.image}
-              alt="No se pudo cargar la imagen"
-              style={{ width: "40%", height: "auto" }}
-            />
-            <LikePost postId={post.id} />
-            <ShowUsersWhoLiked postId={post.id} />
-            <Comments postId={post.id} />
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <div className="feed-container">
+          {posts.map((post) => (
+            <div key={post.id}>
+              <div className="post-container">
+                {post.email === email && <DeletePost postId={post.id} />}
+                <Typography
+                  sx={{ mt: 4, mb: 2 }}
+                  variant="h6"
+                  component="div"
+                ></Typography>
+                <Typography variant="h6">{post.full_name}</Typography>
+                <Typography variant="body2">{post.description}</Typography>
+                <Typography variant="body2">{`Subido: ${
+                  post.created_at?.split("T")[0] //TODO: Change how we handle uploaded time
+                }`}</Typography>
+                <img
+                  src={post.image}
+                  alt="No se pudo cargar la imagen"
+                  style={{ width: "40%", height: "auto" }}
+                />
+                <LikePost postId={post.id} />
+                <ShowUsersWhoLiked postId={post.id} />
+                <Comments postId={post.id} />
+              </div>
+            </div>
+          ))}
+          <div className="pagination-container">
+            {hasLess && (
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleLoadLess}
+              >
+                Anterior
+              </Button>
+            )}
+            {hasMore && (
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleLoadMore}
+              >
+                Siguiente
+              </Button>
+            )}
           </div>
         </div>
-      ))}
+      )}
     </div>
   );
 };
