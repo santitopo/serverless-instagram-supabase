@@ -4,6 +4,7 @@ import { Typography, Button, CircularProgress, TextField } from "@mui/material";
 import { supabase } from "../supabase";
 import { useAuth } from "../providers/Authentication";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Feed from "./Feed";
 
 const ShowUserProfile = ({ username }) => {
   const [user, setUser] = useState(null);
@@ -47,46 +48,10 @@ const ShowUserProfile = ({ username }) => {
 };
 
 const ShowUserPosts = ({ username }) => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchUserPosts = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("username", username)
-        .order("created_at", { ascending: false });
-      if (error) {
-        setError(error.message);
-      } else {
-        setPosts(data);
-      }
-      setLoading(false);
-    };
-    fetchUserPosts();
-  }, [username]);
-
   return (
-    <div className="user-posts">
-      {loading && <CircularProgress />}
-      {error && <Typography color="error">{error}</Typography>}
+    <div>
       <Typography variant="h5">Posts</Typography>
-      {posts.length === 0 && !loading && (
-        <Typography color="textSecondary">Aun no subio nada :(</Typography>
-      )}
-      {posts.map((post) => (
-        <div key={post.id}>
-          <Typography variant="h5">{post.description}</Typography>
-          <img
-            src={post.image}
-            alt="No se encontro la imagen"
-            style={{ width: "10%", height: "auto" }}
-          />
-        </div>
-      ))}
+      <Feed username={username} />
     </div>
   );
 };
