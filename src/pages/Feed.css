@@ -39,3 +39,9 @@
     justify-content: center;
     margin: 10px;
   }
+
+  .empty-feed {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+  }
