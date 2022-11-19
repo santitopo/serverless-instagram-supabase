@@ -1,6 +1,11 @@
 import "./Feed.css";
 import React, { useCallback, useEffect, useState } from "react";
-import { Typography, Button, CircularProgress, TextField } from "@mui/material";
+import {
+  Typography,
+  Button,
+  CircularProgress,
+  TextField,
+} from "@mui/material";
 import { supabase } from "../supabase";
 import { useAuth } from "../providers/Authentication";
 
@@ -152,7 +157,7 @@ const ListUsersWhoLiked = ({ postId }) => {
             <Typography>Personas a las que le gusto esto:</Typography>
           )}
           {usersLiked.length === 0 && (
-            <Typography>Nadie le ha dado like a esto.</Typography>
+            <Typography>Aún no le gusta a nadie :(</Typography>
           )}
           {usersLiked.map((user) => (
             <Typography key={user.username}>{user.username}</Typography>
@@ -172,7 +177,7 @@ const Comments = ({ postId }) => {
     setIsLoading(true);
     const { data, error } = await supabase
       .from("comments")
-      .select("comment, full_name")
+      .select("comment, full_name, username")
       .eq("post_id", postId);
     if (error) {
       setError(error.message);
@@ -332,7 +337,7 @@ const ShowFeed = ({ username }) => {
       const { data, error } = await supabase
         .from("posts")
         .select(
-          "id, created_at, email, full_name, image, description, username, username"
+          "id, created_at, email, full_name, image, description, username"
         )
         .order("created_at", { ascending: false })
         .eq("username", username)
@@ -341,11 +346,7 @@ const ShowFeed = ({ username }) => {
         setError(error.message);
       } else {
         setPosts(data);
-        if (data.length < 5) {
-          setHasMore(false);
-        } else {
-          setHasMore(true);
-        }
+        data.length < 5 ? setHasMore(false) : setHasMore(true);
       }
     } else {
       const { data, error } = await supabase
@@ -359,11 +360,7 @@ const ShowFeed = ({ username }) => {
         setError(error.message);
       } else {
         setPosts(data);
-        if (data.length < 5) {
-          setHasMore(false);
-        } else {
-          setHasMore(true);
-        }
+        data.length < 5 ? setHasMore(false) : setHasMore(true);
       }
     }
     setIsLoading(false);
@@ -416,7 +413,7 @@ const ShowFeed = ({ username }) => {
                   <img
                     src={post.image}
                     alt="No se pudo cargar la imagen"
-                    style={{ width: "40%", height: "auto" }}
+                    className="post-image"
                   />
                   <LikePost postId={post.id} />
                   <ShowUsersWhoLiked postId={post.id} />
