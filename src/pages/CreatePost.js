@@ -38,16 +38,16 @@ const CreatePost = () => {
     try {
       const fileExt = selectedFile.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`; //TODO: Change to images instead of avatars
+      const filePath = `post-images/${fileName}`;
 
       let { error: uploadError } = await supabase.storage
-        .from("avatars")
+        .from("post-images")
         .upload(filePath, selectedFile);
       if (uploadError) {
         throw uploadError;
       }
       const { data } = await supabase.storage
-        .from("avatars")
+        .from("post-images")
         .getPublicUrl(filePath);
       console.log("finished! :)", data.publicUrl);
       return data.publicUrl;
@@ -68,7 +68,7 @@ const CreatePost = () => {
       setGeneralError(error.message);
     } else {
       cleanPostForm();
-      navigate("/home");
+      navigate("/feed");
     }
     setIsLoading(false);
   };

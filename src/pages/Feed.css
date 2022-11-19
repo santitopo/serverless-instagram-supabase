@@ -1,10 +1,11 @@
   .post-container {
     border-radius: 12px;
     margin: auto;
-    width: 50%;
+    width: 32%;
     border: 3px solid;
     padding: 10px;
     text-align: center;
+    margin-bottom: 10px;
   }
 
   .feed-container {
@@ -15,7 +16,7 @@
 
   .comment-container {
     margin: auto;
-    width: 50%;
+    width: 100%;
     padding: 10px;
     text-align: center;
   }
@@ -23,7 +24,7 @@
   .comments-container {
     border-radius: 12px;
     margin: auto;
-    width: 50%;
+    width: 100%;
     border: 3px solid;
     padding: 10px;
     text-align: center;
@@ -42,6 +43,14 @@
 
   .empty-feed {
     margin: auto;
-    width: 50%;
+    width: 100%;
     text-align: center;
+  }
+
+  .post-image {
+    height: auto;
+    max-height: 582px;
+    width: auto;
+    max-width: 582px;
+    border-radius: 8px;
   }

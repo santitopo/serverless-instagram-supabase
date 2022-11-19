@@ -68,7 +68,7 @@ const ShowSearchUsers = () => {
             <img
               src={user.avatar_url}
               alt="No hay imagen"
-              style={{ width: "10%", height: "auto" }}
+              className="profile-avatars"
             />
           </Link>
         </div>

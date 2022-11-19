@@ -4,7 +4,16 @@
   align-items: center;
   padding: 20px;
   text-align: center;
+} 
+
+.profile-avatars {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  border: 2px solid #cddc39;
+  filter: drop-shadow(0 0 8px #ff5722);
 }
+
 
 .user-posts {
   display: flex;

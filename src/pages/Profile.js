@@ -39,7 +39,7 @@ const ShowUserProfile = ({ username }) => {
           <img
             src={user.avatar_url}
             alt="No hay imagen"
-            style={{ width: "10%", height: "auto" }}
+            className="profile-avatars"
           />
         </div>
       )}
@@ -50,7 +50,9 @@ const ShowUserProfile = ({ username }) => {
 const ShowUserPosts = ({ username }) => {
   return (
     <div>
-      <Typography variant="h5">Posts</Typography>
+      <div className="user-profile">
+        <Typography variant="h5">Posts</Typography>
+      </div>
       <Feed username={username} />
     </div>
   );
