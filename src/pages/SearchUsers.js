@@ -16,23 +16,11 @@ const ShowSearchUsers = () => {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .ilike("username", `%${search}%`);
+        .or(`username.ilike.%${search}%, full_name.ilike.%${search}%`);
       if (error) {
-        setError(error.message);
+        setError(error);
       } else {
-        if (data.length === 0) {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .ilike("full_name", `%${search}%`);
-          if (error) {
-            setError(error.message);
-          } else {
-            setUsers(data);
-          }
-        } else {
-          setUsers(data);
-        }
+        setUsers(data);
       }
       setLoading(false);
     };
