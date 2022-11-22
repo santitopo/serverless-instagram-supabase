@@ -248,13 +248,11 @@ const ShowComments = ({ comments, isLoading, error }) => {
     } else {
       return comments.map((comment, index) => (
         <Typography key={index}>
-          <Typography variant="body2">{`Comentado el ${
-            `${comment.created_at}`.split("T")[0] +
+          (
+          {`${comment.created_at}`.split("T")[0] +
             " " +
-            "a las " +
-            `${comment.created_at}`.split("T")[1].split(".")[0]
-          }`}</Typography>
-          {comment.full_name}: {comment.comment}
+            `${comment.created_at}`.split("T")[1].split(".")[0]}
+          ) {comment.full_name}: {comment.comment}
         </Typography>
       ));
     }
@@ -365,7 +363,7 @@ const ShowFeed = ({ username }) => {
       }
     }
     setIsLoading(false);
-  }, [page]);
+  }, [page, username]);
 
   useEffect(() => {
     fetchPosts();
