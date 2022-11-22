@@ -1,11 +1,6 @@
 import "./Feed.css";
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  Typography,
-  Button,
-  CircularProgress,
-  TextField,
-} from "@mui/material";
+import { Typography, Button, CircularProgress, TextField } from "@mui/material";
 import { supabase } from "../supabase";
 import { useAuth } from "../providers/Authentication";
 
@@ -177,7 +172,7 @@ const Comments = ({ postId }) => {
     setIsLoading(true);
     const { data, error } = await supabase
       .from("comments")
-      .select("comment, full_name, username")
+      .select("comment, full_name, username, created_at")
       .eq("post_id", postId);
     if (error) {
       setError(error.message);
@@ -253,6 +248,12 @@ const ShowComments = ({ comments, isLoading, error }) => {
     } else {
       return comments.map((comment, index) => (
         <Typography key={index}>
+          <Typography variant="body2">{`Comentado el ${
+            `${comment.created_at}`.split("T")[0] +
+            " " +
+            "a las " +
+            `${comment.created_at}`.split("T")[1].split(".")[0]
+          }`}</Typography>
           {comment.full_name}: {comment.comment}
         </Typography>
       ));
@@ -407,8 +408,11 @@ const ShowFeed = ({ username }) => {
                   ></Typography>
                   <Typography variant="h6">{post.full_name}</Typography>
                   <Typography variant="body2">{post.description}</Typography>
-                  <Typography variant="body2">{`Subido: ${
-                    post.created_at?.split("T")[0] //TODO: Change how we handle uploaded time
+                  <Typography variant="body2">{`Subido el ${
+                    `${post.created_at}`.split("T")[0] +
+                    " " +
+                    "a las " +
+                    `${post.created_at}`.split("T")[1].split(".")[0]
                   }`}</Typography>
                   <img
                     src={post.image}
