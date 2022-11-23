@@ -11,6 +11,7 @@ const visible = require("../assets/visible.png");
 const invisible = require("../assets/invisible.png");
 const commentsVisible = require("../assets/shown-comments.png");
 const commentsHidden = require("../assets/hidden-comments.png");
+const waste = require("../assets/waste.png");
 
 const LikePost = ({ postId, postDescription }) => {
   const { user } = useAuth();
@@ -106,7 +107,7 @@ const LikePost = ({ postId, postDescription }) => {
   };
   return (
     <>
-      <div className="like-container">
+      <div className="row-container">
         {error && <Typography color="error">{error}</Typography>}
         <div class="row-elements">
           {isLoading ? (
@@ -116,7 +117,6 @@ const LikePost = ({ postId, postDescription }) => {
             <a onClick={liked ? handleUnlike : handleLike}>
               <img
                 src={liked ? heartFilled : heartEmpty}
-                // onClick={liked ? handleUnlike : handleLike}
                 alt="Like"
                 style={{
                   width: "25px",
@@ -203,7 +203,7 @@ const ListUsersWhoLiked = ({ postId }) => {
           {usersLiked.length > 0 && <Typography variant="h6">Likes</Typography>}
           {usersLiked.length === 0 && (
             <Typography style={{ textAlign: "left" }}>
-              Aún no le gusta a nadie :(
+              Sin me gustas todavía!
             </Typography>
           )}
           {usersLiked.map((user) => (
@@ -327,7 +327,7 @@ const ShowComments = ({ comments, isLoading, error }) => {
   );
 };
 
-const DeletePost = ({ postId }) => {
+const DeletePost = ({ postId, refreshMainPostList }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -361,6 +361,7 @@ const DeletePost = ({ postId }) => {
     await deletePostComments();
     await deletePost();
     setIsLoading(false);
+    refreshMainPostList();
   };
 
   return (
@@ -369,9 +370,15 @@ const DeletePost = ({ postId }) => {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <Button variant="outlined" color="secondary" onClick={handleDelete}>
-          Eliminar
-        </Button>
+        <a onClick={handleDelete}>
+          <img
+            src={waste}
+            alt="Like"
+            style={{
+              width: "30px",
+            }}
+          />
+        </a>
       )}
     </div>
   );
@@ -440,7 +447,7 @@ const ShowFeed = ({ username }) => {
 
   return (
     <>
-      {/* {error && <Typography color="error">{error}</Typography>} */}
+      {error && <Typography color="error">{error}</Typography>}
       {isLoading ? (
         <CircularProgress />
       ) : (
@@ -453,22 +460,26 @@ const ShowFeed = ({ username }) => {
             posts.map((post) => (
               <div key={post.id}>
                 <div className="post-container">
-                  {post.username === user?.username && (
-                    <DeletePost postId={post.id} />
-                  )}
-                  <Typography
-                    sx={{ mt: 4, mb: 2 }}
-                    variant="h6"
-                    component="div"
-                  ></Typography>
-                  <Typography variant="h6">{post.full_name}</Typography>
+                  <div class="row-container">
+                    <div class="row-elements-flex">
+                      <Typography variant="h6">{post.full_name}</Typography>
 
-                  <Typography variant="body2">{`Subido el ${
-                    `${post.created_at}`.split("T")[0] +
-                    " " +
-                    "a las " +
-                    `${post.created_at}`.split("T")[1].split(".")[0]
-                  }`}</Typography>
+                      <Typography variant="body2">{`Subido el ${
+                        `${post.created_at}`.split("T")[0] +
+                        " " +
+                        "a las " +
+                        `${post.created_at}`.split("T")[1].split(".")[0]
+                      }`}</Typography>
+                    </div>
+                    <div class="row-elements">
+                      {post.username === user?.username && (
+                        <DeletePost
+                          postId={post.id}
+                          refreshMainPostList={fetchPosts}
+                        />
+                      )}
+                    </div>
+                  </div>
                   <img
                     src={post.image}
                     alt="No se pudo cargar la imagen"

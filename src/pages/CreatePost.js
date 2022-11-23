@@ -74,8 +74,8 @@ const CreatePost = () => {
   };
 
   return (
-    <Grid item xs={5}>
-      <div id="auth-button-container">
+    <>
+      <div class="create-post-container">
         <Typography style={{ textAlign: "center", fontSize: 24 }}>
           {"Crear post:"}
         </Typography>
@@ -124,7 +124,7 @@ const CreatePost = () => {
           </Box>
         )}
       </div>
-    </Grid>
+    </>
   );
 };
 
