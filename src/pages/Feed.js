@@ -1,15 +1,42 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import "./Feed.css";
 import React, { useCallback, useEffect, useState } from "react";
 import { Typography, Button, CircularProgress, TextField } from "@mui/material";
 import { supabase } from "../supabase";
 import { useAuth } from "../providers/Authentication";
 
-const LikePost = ({ postId }) => {
+const heartFilled = require("../assets/heart-filled.png");
+const heartEmpty = require("../assets/heart-empty.png");
+const visible = require("../assets/visible.png");
+const invisible = require("../assets/invisible.png");
+const commentsVisible = require("../assets/shown-comments.png");
+const commentsHidden = require("../assets/hidden-comments.png");
+
+const LikePost = ({ postId, postDescription }) => {
   const { user } = useAuth();
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showLikes, setShowLikes] = React.useState(false);
+  const [showComments, setShowComments] = React.useState(false);
+
+  const onClickShowLikes = () => {
+    setShowComments(false);
+    setShowLikes(true);
+  };
+  const onClickHideLikes = () => setShowLikes(false);
+  const onClickHideComments = () => {
+    setShowComments(false);
+  };
+  const onClickShowComments = () => {
+    setShowLikes(false);
+    setShowComments(true);
+  };
+
+  useEffect(() => {
+    setShowLikes(false);
+  }, [postId]);
 
   useEffect(() => {
     const fetchLikes = async () => {
@@ -54,6 +81,7 @@ const LikePost = ({ postId }) => {
     } else {
       setLiked(true);
       setLikes(likes + 1);
+      onClickHideLikes();
     }
     setIsLoading(false);
   };
@@ -70,48 +98,70 @@ const LikePost = ({ postId }) => {
     } else {
       setLiked(false);
       setLikes(likes - 1);
+      onClickHideLikes();
     }
     setIsLoading(false);
   };
   return (
-    <div className="like-container">
-      {error && <Typography color="error">{error}</Typography>}
-      {isLoading ? (
-        <CircularProgress />
-      ) : (
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={liked ? handleUnlike : handleLike}
-        >
-          {liked ? "Unlike" : "Like"}
-        </Button>
-      )}
-      <Typography>{likes} likes</Typography>
-    </div>
-  );
-};
-
-const ShowUsersWhoLiked = ({ postId }) => {
-  const [showResults, setShowResults] = React.useState(false);
-  useEffect(() => {
-    setShowResults(false);
-  }, [postId]);
-
-  const onClick = () => setShowResults(true);
-  const onClickHide = () => setShowResults(false);
-
-  return (
-    <div>
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={showResults ? onClickHide : onClick}
+    <>
+      <div className="like-container">
+        {error && <Typography color="error">{error}</Typography>}
+        <div class="row-elements">
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            // eslint-disable-next-line jsx-a11y/anchor-is-valid
+            <a onClick={liked ? handleUnlike : handleLike}>
+              <img
+                src={liked ? heartFilled : heartEmpty}
+                onClick={liked ? handleUnlike : handleLike}
+                alt="Like"
+                style={{
+                  width: "25px",
+                }}
+              />
+            </a>
+          )}
+        </div>
+        <div class="row-elements">
+          <Typography>{likes} likes</Typography>
+        </div>
+        <div class="row-elements">
+          <a onClick={showLikes ? onClickHideLikes : onClickShowLikes}>
+            <img
+              alt="Eye"
+              style={{
+                width: "25px",
+              }}
+              src={showLikes ? visible : invisible}
+            />
+          </a>
+        </div>
+        <div class="row-elements">
+          <a onClick={showComments ? onClickHideComments : onClickShowComments}>
+            <img
+              alt="Comments"
+              style={{
+                width: "25px",
+              }}
+              src={showComments ? commentsVisible : commentsHidden}
+            />
+          </a>
+        </div>
+      </div>
+      <Typography
+        style={{
+          fontStyle: "italic",
+          textAlign: "left",
+          fontSize: "18px",
+          padding: "0px 15px 15px 15px",
+        }}
       >
-        {showResults ? "Ocultar Likes" : "Mostrar Likes"}
-      </Button>
-      {showResults ? <ListUsersWhoLiked postId={postId} /> : null}
-    </div>
+        {postDescription}
+      </Typography>
+      <div>{showLikes ? <ListUsersWhoLiked postId={postId} /> : null}</div>
+      {showComments ? <Comments postId={postId} /> : null}
+    </>
   );
 };
 
@@ -148,14 +198,16 @@ const ListUsersWhoLiked = ({ postId }) => {
         <CircularProgress />
       ) : (
         <div className="users-liked-container">
-          {usersLiked.length > 0 && (
-            <Typography>Personas a las que le gusto esto:</Typography>
-          )}
+          {usersLiked.length > 0 && <Typography variant="h6">Likes</Typography>}
           {usersLiked.length === 0 && (
-            <Typography>Aún no le gusta a nadie :(</Typography>
+            <Typography style={{ textAlign: "left" }}>
+              Aún no le gusta a nadie :(
+            </Typography>
           )}
           {usersLiked.map((user) => (
-            <Typography key={user.username}>{user.username}</Typography>
+            <Typography key={user.username} style={{ textAlign: "left" }}>
+              {user.username}
+            </Typography>
           ))}
         </div>
       )}
@@ -188,8 +240,8 @@ const Comments = ({ postId }) => {
 
   return (
     <>
-      <AddComment postId={postId} onUpdate={fetchComments} />
       <ShowComments comments={comments} isLoading={isLoading} error={error} />
+      <AddComment postId={postId} onUpdate={fetchComments} />
     </>
   );
 };
@@ -220,19 +272,24 @@ const AddComment = ({ postId, onUpdate }) => {
   return (
     <div className="comment-container">
       {error && <Typography color="error">{error}</Typography>}
-      <TextField
-        label="Escriba su comentario"
-        variant="outlined"
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-      />
-      {isLoading ? (
-        <CircularProgress />
-      ) : (
-        <Button variant="outlined" color="primary" onClick={handleComment}>
-          Comentar
-        </Button>
-      )}
+      <div class="row-elements-flex">
+        <TextField
+          label="Escriba su comentario"
+          style={{ width: "100%" }}
+          variant="outlined"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+      </div>
+      <div class="row-elements">
+        {isLoading ? (
+          <CircularProgress />
+        ) : (
+          <Button variant="outlined" color="primary" onClick={handleComment}>
+            Comentar
+          </Button>
+        )}
+      </div>
     </div>
   );
 };
@@ -248,11 +305,9 @@ const ShowComments = ({ comments, isLoading, error }) => {
     } else {
       return comments.map((comment, index) => (
         <Typography key={index}>
-          (
-          {`${comment.created_at}`.split("T")[0] +
-            " " +
-            `${comment.created_at}`.split("T")[1].split(".")[0]}
-          ) {comment.full_name}: {comment.comment}
+          {"["}
+          {`${comment.created_at}`.split("T")[0]}
+          {"]"} {comment.full_name}: {comment.comment}
         </Typography>
       ));
     }
@@ -382,12 +437,12 @@ const ShowFeed = ({ username }) => {
   };
 
   return (
-    <div className="feed-container">
-      {error && <Typography color="error">{error}</Typography>}
+    <>
+      {/* {error && <Typography color="error">{error}</Typography>} */}
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <div className="feed-container">
+        <>
           {posts.length === 0 ? (
             <div className="empty-feed">
               <Typography>Aún no hay publicaciones...</Typography>
@@ -405,7 +460,7 @@ const ShowFeed = ({ username }) => {
                     component="div"
                   ></Typography>
                   <Typography variant="h6">{post.full_name}</Typography>
-                  <Typography variant="body2">{post.description}</Typography>
+
                   <Typography variant="body2">{`Subido el ${
                     `${post.created_at}`.split("T")[0] +
                     " " +
@@ -415,11 +470,18 @@ const ShowFeed = ({ username }) => {
                   <img
                     src={post.image}
                     alt="No se pudo cargar la imagen"
-                    className="post-image"
+                    style={{
+                      maxWidth: "100%",
+                      minHeight: 400,
+                      objectFit: "cover",
+                      paddingBottom: 5,
+                      paddingTop: 5,
+                    }}
                   />
-                  <LikePost postId={post.id} />
-                  <ShowUsersWhoLiked postId={post.id} />
-                  <Comments postId={post.id} />
+                  <LikePost
+                    postId={post.id}
+                    postDescription={post?.description}
+                  />
                 </div>
               </div>
             ))
@@ -444,16 +506,12 @@ const ShowFeed = ({ username }) => {
               </Button>
             )}
           </div>
-        </div>
+        </>
       )}
-    </div>
+    </>
   );
 };
 
 export default function Feed({ username = "" }) {
-  return (
-    <div className="feed-container">
-      <ShowFeed username={username} />
-    </div>
-  );
+  return <ShowFeed username={username} />;
 }
