@@ -70,6 +70,7 @@ const LikePost = ({ postId, postDescription }) => {
   }, [postId, user.username]);
 
   const handleLike = async () => {
+    setError("");
     setIsLoading(true);
     const { error } = await supabase.from("likes").insert({
       post_id: postId,
@@ -87,6 +88,7 @@ const LikePost = ({ postId, postDescription }) => {
   };
 
   const handleUnlike = async () => {
+    setError("");
     setIsLoading(true);
     const { error } = await supabase
       .from("likes")
@@ -114,7 +116,7 @@ const LikePost = ({ postId, postDescription }) => {
             <a onClick={liked ? handleUnlike : handleLike}>
               <img
                 src={liked ? heartFilled : heartEmpty}
-                onClick={liked ? handleUnlike : handleLike}
+                // onClick={liked ? handleUnlike : handleLike}
                 alt="Like"
                 style={{
                   width: "25px",
