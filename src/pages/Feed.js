@@ -119,6 +119,7 @@ const LikePost = ({ postId, postDescription }) => {
                 src={liked ? heartFilled : heartEmpty}
                 alt="Like"
                 style={{
+                  cursor: "pointer",
                   width: "25px",
                 }}
               />
@@ -133,6 +134,7 @@ const LikePost = ({ postId, postDescription }) => {
             <img
               alt="Eye"
               style={{
+                cursor: "pointer",
                 width: "25px",
               }}
               src={showLikes ? visible : invisible}
@@ -144,6 +146,7 @@ const LikePost = ({ postId, postDescription }) => {
             <img
               alt="Comments"
               style={{
+                cursor: "pointer",
                 width: "25px",
               }}
               src={showComments ? commentsVisible : commentsHidden}
@@ -375,6 +378,7 @@ const DeletePost = ({ postId, refreshMainPostList }) => {
             src={waste}
             alt="Like"
             style={{
+              cursor: "pointer",
               width: "30px",
             }}
           />
