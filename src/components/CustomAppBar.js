@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
 
 import AppBar from "@mui/material/AppBar";
@@ -59,9 +60,11 @@ const CustomAppBar = ({ title }) => {
         )}
 
         {isLoggedIn && (
-          <Typography style={{ textAlign: "center", paddingLeft: "10px" }}>
+          <Typography
+            style={{ textAlign: "center", padding: "0px 10px 0px 10px" }}
+          >
             <Button
-              style={{ backgroundColor: "white", paddingLeft: "10px" }}
+              style={{ backgroundColor: "white" }}
               onClick={() => navigate("/create-post")}
               sx={{ fontSize: 16 }}
             >
@@ -70,30 +73,26 @@ const CustomAppBar = ({ title }) => {
           </Typography>
         )}
         {isLoggedIn && (
-          <Typography
-            color={theme.palette.background}
-            component="h1"
-            variant="h6"
-            sx={{ mr: 1 }}
-            noWrap
+          <a
+            style={{ cursor: "pointer" }}
+            alt="Your profile"
+            onClick={() =>
+              navigate(`/profile?username=${loggedInUser?.username}`)
+            }
           >
-            {loggedInUser?.full_name
-              ? `Bienvenido, ${loggedInUser?.full_name}`
-              : "Bienvenido!"}
-          </Typography>
-        )}
-        {isLoggedIn && (
-          <Typography style={{ textAlign: "center", paddingLeft: "10px" }}>
-            <Button
-              style={{ backgroundColor: "white", paddingLeft: "10px" }}
-              onClick={() =>
-                navigate(`/profile?username=${loggedInUser?.username}`)
-              }
-              sx={{ fontSize: 16 }}
+            <Typography
+              color={theme.palette.background}
+              component="h1"
+              variant="h6"
+              style={{ textDecoration: "underline" }}
+              sx={{ mr: 1 }}
+              noWrap
             >
-              {"Mi Perfil"}
-            </Button>
-          </Typography>
+              {loggedInUser?.full_name
+                ? `Bienvenido, ${loggedInUser?.full_name}`
+                : "Bienvenido!"}
+            </Typography>
+          </a>
         )}
         {isLoggedIn && (
           <Button

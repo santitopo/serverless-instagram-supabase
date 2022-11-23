@@ -1,56 +1,57 @@
-  .post-container {
-    border-radius: 12px;
-    margin: auto;
-    width: 32%;
-    border: 3px solid;
-    padding: 10px;
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .feed-container {
-    border-radius: 12px;
-    margin: auto;
-    width: 100%;
+.post-container {
+  border-radius: 8px;
+  margin: auto;
+  width: 35%;
+  border: 1px solid;
+  border-color: #d3d3d3;
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.comment-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.row-elements-flex {
+  flex: 1;
+  vertical-align: middle;
+  padding: 10px 0px 10px 10px;
+}
+.row-elements {
+  display: inline-block;
+  padding: 0px 15px;
+  vertical-align: middle;
+}
+.comments-container {
+  width: 100%;
+  padding: 0px 10px;
+  text-align: left;
+}
+.users-liked-container {
+  width: 100%;
+  padding: 0px 10px 10px 10px;
+  text-align: left;
+}
+.row-container {
+  width: "100%";
+  display: flex;
+  align-items: center;
 }
 
-  .comment-container {
-    margin: auto;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
-  }
+.row-element .container {
+  overflow-y: scroll;
+  margin: 10px 0px;
+}
 
-  .comments-container {
-    border-radius: 12px;
-    margin: auto;
-    width: 100%;
-    border: 3px solid;
-    padding: 10px;
-    text-align: center;
-  }
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px;
+}
 
-  .container {
-    overflow-y: scroll;
-    height: 10vh;
-  }
-
-  .pagination-container {
-    display: flex;
-    justify-content: center;
-    margin: 10px;
-  }
-
-  .empty-feed {
-    margin: auto;
-    width: 100%;
-    text-align: center;
-  }
-
-  .post-image {
-    height: auto;
-    max-height: 582px;
-    width: auto;
-    max-width: 582px;
-    border-radius: 8px;
-  }
+.empty-feed {
+  margin: auto;
+  width: 100%;
+  text-align: center;
+}
