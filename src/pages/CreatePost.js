@@ -61,12 +61,24 @@ const CreatePost = () => {
     setIsLoading(true);
     setGeneralError("");
     const imagePath = await uploadPostImage();
+
     const { error } = await supabase
       .from("posts")
       .insert({ description, image: imagePath, email, full_name, username });
+
     if (error) {
       setGeneralError(error.message);
     } else {
+      try {
+        const body = {
+          username,
+          description,
+          created_at: new Date().toLocaleString(),
+        };
+        await supabase.functions.invoke("notify-slack", { body });
+      } catch (error) {
+        console.log("Error notifying slack", error);
+      }
       cleanPostForm();
       navigate("/feed");
     }

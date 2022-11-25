@@ -28,7 +28,16 @@ async function publishMessage(id, text) {
   }
 }
 
+export const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, content-type, x-client-info, apikey",
+};
+
 serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
   const { username, description, created_at } = await req.json();
 
   const message = `New post created:
