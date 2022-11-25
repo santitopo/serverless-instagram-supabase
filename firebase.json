@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "instagram-serverless",
     "public": "build",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
