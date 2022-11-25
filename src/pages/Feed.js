@@ -486,10 +486,11 @@ const ShowFeed = ({ username }) => {
                   </div>
                   <img
                     src={post.image}
-                    alt="No se pudo cargar la imagen"
+                    alt="Imágen del post"
                     style={{
                       maxWidth: "100%",
                       minHeight: 400,
+                      maxHeight: 400,
                       objectFit: "cover",
                       paddingBottom: 5,
                       paddingTop: 5,
