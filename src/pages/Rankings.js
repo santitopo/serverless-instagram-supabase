@@ -45,19 +45,19 @@ const ShowMostLikedPosts = () => {
                         {post.description}
                     </Typography>
                     <img
-                    src={post.image}
-                    alt="Imágen del post"
-                    style={{
-                      maxWidth: "100%",
-                      minHeight: 400,
-                      maxHeight: 400,
-                      objectFit: "cover",
-                      paddingBottom: 5,
-                      paddingTop: 5,
-                    }}
-                  />
+                        src={post.image}
+                        alt="Imágen del post"
+                        style={{
+                            maxWidth: '100%',
+                            minHeight: 400,
+                            maxHeight: 400,
+                            objectFit: 'cover',
+                            paddingBottom: 5,
+                            paddingTop: 5
+                        }}
+                    />
                     <Typography variant="body2" gutterBottom>
-                        {post.likes}
+                        Total likes: {post.total_likes}
                     </Typography>
                 </div>
             ))}
@@ -65,7 +65,6 @@ const ShowMostLikedPosts = () => {
     );
 };
 
-
 export default function Rankings() {
-  return <ShowMostLikedPosts />;
+    return <ShowMostLikedPosts />;
 }
