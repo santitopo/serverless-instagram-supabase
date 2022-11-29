@@ -37,6 +37,19 @@ const CustomAppBar = ({ title }) => {
             {"Home"}
           </Button>
         )}
+        {isLoggedIn && (
+          <Typography
+            style={{ textAlign: "center", padding: "0px 10px 0px 10px" }}
+          >
+            <Button
+              style={{ backgroundColor: "white" }}
+              onClick={() => navigate("/rankings")}
+              sx={{ fontSize: 16 }}
+            >
+              {"Rankings"}
+            </Button>
+          </Typography>
+        )}
         <Typography style={{ textAlign: "center" }}></Typography>
         <Typography
           color={theme.palette.background}
