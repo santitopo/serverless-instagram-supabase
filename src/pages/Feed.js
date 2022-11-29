@@ -489,8 +489,8 @@ const ShowFeed = ({ username }) => {
                     alt="Imágen del post"
                     style={{
                       maxWidth: "100%",
-                      minHeight: 400,
-                      maxHeight: 400,
+                      height: 500,
+                      width: "100%",
                       objectFit: "cover",
                       paddingBottom: 5,
                       paddingTop: 5,
