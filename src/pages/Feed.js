@@ -490,7 +490,7 @@ const ShowFeed = ({ username }) => {
                     style={{
                       maxWidth: "100%",
                       height: 500,
-                      width: "100%",
+                      width: 500,
                       objectFit: "cover",
                       paddingBottom: 5,
                       paddingTop: 5,
