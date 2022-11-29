@@ -13,6 +13,7 @@ import CreatePost from "./pages/CreatePost";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import SearchUsers from "./pages/SearchUsers";
+import Rankings from "./pages/Rankings";
 
 export default function Router() {
   const isLoggedIn = useIsLoggedIn();
@@ -110,6 +111,22 @@ export default function Router() {
             isEmailVerified ? (
               isProfileCompleted ? (
                 <SearchUsers />
+              ) : (
+                <Navigate to="/complete-register" replace />
+              )
+            ) : (
+              <Navigate to="/verify-email" replace />
+            )
+          ) : (
+            <Navigate to="/feed" />
+          ),
+        },
+        {
+          path: "rankings",
+          element: isLoading ? null : isLoggedIn ? (
+            isEmailVerified ? (
+              isProfileCompleted ? (
+                <Rankings />
               ) : (
                 <Navigate to="/complete-register" replace />
               )
