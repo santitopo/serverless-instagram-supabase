@@ -1,24 +1,45 @@
 # InstaOrt
 
-## Descirpción
+## Descripción
 
 El sistema cuenta con las siguientes funcionalidades implementadas:
 
-- Registro de usuario con mail, Google y Facebook.
-- Inicio de sesión con mail, Google y Facebook.
-- Enviar solicitud de amistad, tanto a usuarios registrados como no registrados. Estos ultimos reciben una invitacion por correo electronico a unirse a la aplicacion.
-- Manejo de solicitudes de amistad. Los usuarios pueden rechazar y aceptar las solicitudes.
-- Conversaciones con amigos. Se listan los usuarios que son amigos del usuario loggeado, y cuando se selecciona uno, se muestra el chat entre ambos.
-- Ver ultimo mensaje en la lista de amigos.
-- Notificaciones dentro de la app al recibir mensajes.
+- **Registro de usuario**
+  - Con email y contraseña
+  - Con magiclink
+- **Inicio de sesión:**
+  - Con email y contraseña
+  - Con magiclink
+- **Cierre de sesión.**
+- **Ver lista de posts (feed)**, mostrando para cada post su imagen, username, fecha de posteo. Así como también los likes y comentarios del post. Ordenada por fecha de creación y con paginado que muestre de a 5 items como máximo por página. 
+- **Búsqueda de usuarios**, se puede buscar a otros usuarios registrados en la app, viendo de ellos el nombre completo, su username, email e imagen de perfil.
+- **Ver perfil de usuario**, tanto propio como de otros usuarios.
+- **Crear un post**, se puede crear un post desde la página de inicio, subiendo la imagen y la descripción de la misma.
+- **Ver comentarios**, se pueden ver los comentarios de un post ordenados por fecha de creación y mostrando autor y contenido del mismo.
+- **Crear comentario**, también se pueden agregar comentarios a los distintos posts.
+- **Dar like/unlike**, se puede likear un post, asi también como quitar este like
+- **Borrar post**, un usuario puede borrar los posts propios. 
+- **Reporte de actividad / Rankings**, un usuario puede ver ciertos rankings dentro de la app, estos son: 
+  - Top 5 usuarios con mayor cantidad de posts y su cantidad.
+  - Top 5 posts con mayor cantidad de likes y su cantidad de likes.
+  - Top 5 usuarios con mayor cantidad de comentarios y su cantidad.
+- **Notificaciones de creación de post**, se le notifica a la ORT cada vez que se sube un post, esto es mediante una integración con Slack, donde se envía a un channel un mensaje cada vez que se crea un nuevo post.
+
+El sistema cuenta con las siguientes cuestiones no funcionales:
+- **Seguridad**, se cuenta con Row Level Security.
+- **Configuración y manejo de secretos**, se trabaja con variables de entorno que se mantienen al margen del control de versiones.
+- **Distribución del sistema**, el sistema es hosteado utilizando Firebase, específicamente su servicio de Firebase Hosting.
+- **Código fuente**, el sistema fue desarrollado en su totalidad en inglés, además, se utilizó git como herramienta de control de versiones, siguiendo Gitflow como estrategia de branching. 
+
 
 ## Estructura de carpetas y archivos
 
-- extensions y requests: carpetas que contienen las credenciales para hacer uso del envio de mails para invitaciones al sistema
-- src: carpeta en la que se encuentra la mayor cantidad del contenido de la aplicación:
-  - pages: carpeta con las paginas de la aplicación
-  - components: carepta con los componentes de la aplicacion
-- tests: caperta contenedora de los test de la aplicacion
+- **src:** carpeta en la que se encuentra la mayor cantidad del contenido de la aplicación:
+  - **pages:** carpeta con las paginas de la aplicación
+  - **components:** carpeta con los componentes de la aplicacion
+  - **providers:** se encuentra el provider de authentication de supabase
+  - **supabase:** se encuentra el index de supabase
+- **supabase**: allí se encuentran las functions, en específico la de integración con slack
 
 ## Ejecución del proyecto
 
@@ -26,48 +47,9 @@ Primero navegar hacia la carpeta raiz del proyecto.
 Una vez en la raiz, se deben ejecutar los siguientes comandos para correr la aplicacion:
 
 1.  `npm ci`
-2.  `npm start`
+2.  `npm run start`
 
-## Ejecución de pruebas
-
-En la raíz del proyecto ejecutar `firebase emulators:start`
-En otra consola, en la raíz del proyecto ejecutar:
-
-1. `cd tests`
-2. `npm ci`
-3. `npm test`
 
 ## Link publico
 
-https://chat-serverless-89e6b.web.app
-
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+https://instagram-serverless.web.app
