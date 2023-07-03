@@ -1,55 +1,51 @@
-# InstaOrt
+Project done using:
+- Supabase as a Backend as a Service provider
+  - Relational Database
+  - Auth Provider
+  - Row level security
+  - Storage
+  - Edge functions (Slack notifications)
+- React for frontend
 
-## Descripción
+## Implemented functionalities:
 
-El sistema cuenta con las siguientes funcionalidades implementadas:
-
-- **Registro de usuario**
-  - Con email y contraseña
-  - Con magiclink
-- **Inicio de sesión:**
-  - Con email y contraseña
-  - Con magiclink
-- **Cierre de sesión.**
-- **Ver lista de posts (feed)**, mostrando para cada post su imagen, username, fecha de posteo. Así como también los likes y comentarios del post. Ordenada por fecha de creación y con paginado que muestre de a 5 items como máximo por página. 
-- **Búsqueda de usuarios**, se puede buscar a otros usuarios registrados en la app, viendo de ellos el nombre completo, su username, email e imagen de perfil.
-- **Ver perfil de usuario**, tanto propio como de otros usuarios.
-- **Crear un post**, se puede crear un post desde la página de inicio, subiendo la imagen y la descripción de la misma.
-- **Ver comentarios**, se pueden ver los comentarios de un post ordenados por fecha de creación y mostrando autor y contenido del mismo.
-- **Crear comentario**, también se pueden agregar comentarios a los distintos posts.
-- **Dar like/unlike**, se puede likear un post, asi también como quitar este like
-- **Borrar post**, un usuario puede borrar los posts propios. 
-- **Reporte de actividad / Rankings**, un usuario puede ver ciertos rankings dentro de la app, estos son: 
-  - Top 5 usuarios con mayor cantidad de posts y su cantidad.
-  - Top 5 posts con mayor cantidad de likes y su cantidad de likes.
-  - Top 5 usuarios con mayor cantidad de comentarios y su cantidad.
-- **Notificaciones de creación de post**, se le notifica a la ORT cada vez que se sube un post, esto es mediante una integración con Slack, donde se envía a un channel un mensaje cada vez que se crea un nuevo post.
-
-El sistema cuenta con las siguientes cuestiones no funcionales:
-- **Seguridad**, se cuenta con Row Level Security.
-- **Configuración y manejo de secretos**, se trabaja con variables de entorno que se mantienen al margen del control de versiones.
-- **Distribución del sistema**, el sistema es hosteado utilizando Firebase, específicamente su servicio de Firebase Hosting.
-- **Código fuente**, el sistema fue desarrollado en su totalidad en inglés, además, se utilizó git como herramienta de control de versiones, siguiendo Gitflow como estrategia de branching. 
+- User Registration
+- With email and password
+- With magic link
+- Login:
+	- With email and password
+	- With magic link
+- Logout.
+- View list of posts (feed), displaying for each post its image, username, posting date, as well as the number of likes and comments. Sorted by creation date with pagination showing a maximum of 5 items per page.
+- User Search, users can search for other registered users in the app, viewing their full name, username, email, and profile picture.
+- View user profile, both for oneself and other users.
+- Create a post, users can create a post from the home page, uploading the image and its description.
+- View comments, users can see comments on a post, sorted by creation date, showing the author and content of each comment.
+- Create comment, users can also add comments to different posts.
+- Like/unlike, users can like a post and also remove the like.
+- Delete post, a user can delete their own posts.
+- Activity Report / Rankings, a user can view certain rankings within the app, including:
+	- Top 5 users with the most posts and their quantity.
+	- Top 5 posts with the most likes and the number of likes they have.
+	- Top 5 users with the most comments and their quantity.
+- Post creation notifications, the ORT is notified every time a post is uploaded, through an integration with Slack, where a message is sent to a channel each time a new post is created.
 
 
-## Estructura de carpetas y archivos
+## Non-functional requirements:
 
-- **src:** carpeta en la que se encuentra la mayor cantidad del contenido de la aplicación:
-  - **pages:** carpeta con las paginas de la aplicación
-  - **components:** carpeta con los componentes de la aplicacion
-  - **providers:** se encuentra el provider de authentication de supabase
-  - **supabase:** se encuentra el index de supabase
-- **supabase**: allí se encuentran las functions, en específico la de integración con slack
+- Access control with Row Level Security.
+- Configuration and secret management, it works with environment variables kept outside version control.
+- System distribution, the system is hosted using Firebase, specifically Firebase Hosting.
 
-## Ejecución del proyecto
+## Project Execution
 
-Primero navegar hacia la carpeta raiz del proyecto.
-Una vez en la raiz, se deben ejecutar los siguientes comandos para correr la aplicacion:
+First, navigate to the root folder of the project.
+Once in the root folder, execute the following commands to run the application:
 
 1.  `npm ci`
 2.  `npm run start`
 
 
-## Link publico
+## Public Link
 
 https://instagram-serverless.web.app
