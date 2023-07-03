@@ -37,6 +37,17 @@ Project done using:
 - Configuration and secret management, it works with environment variables kept outside version control.
 - System distribution, the system is hosted using Firebase, specifically Firebase Hosting.
 
+## Screenshots
+
+<img width="700" alt="image" src="https://github.com/santitopo/serverless-instagram-supabase/assets/43559181/72aa03dc-54b1-474d-8728-2ebf0f86d402">
+
+<img width="700" alt="image" src="https://github.com/santitopo/serverless-instagram-supabase/assets/43559181/dee1ec46-c3a1-4f0b-8b21-d824ffaa1c33">
+
+<img width="300" alt="image" src="https://github.com/santitopo/serverless-instagram-supabase/assets/43559181/2f1d5f54-dbd4-458b-83d3-7e2ef44f54cb">
+
+
+
+
 ## Project Execution
 
 First, navigate to the root folder of the project.
